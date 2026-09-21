@@ -1,0 +1,20 @@
+{
+  "name": "weathergpt",
+  "version": "2.5.0",
+  "description": "Next-Gen AI Weather Intelligence Platform for India",
+  "scripts": {
+    "dev": "python -m uvicorn backend.main:app --reload --port 8000",
+    "start": "python -m uvicorn backend.main:app --port 8000",
+    "serve:frontend": "python -m http.server 3000 --directory frontend",
+    "test": "python -m pytest"
+  },
+  "keywords": [
+    "weathergpt",
+    "weather-ai",
+    "gemini",
+    "imd-alerts",
+    "fastapi"
+  ],
+  "author": "WeatherGPT Team",
+  "license": "MIT"
+}

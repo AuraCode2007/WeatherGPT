@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WeatherGPT — AI Weather Intelligence</title>
+  <meta name="description" content="India's AI-powered weather intelligence platform. Real-time forecasts, radar, multi-domain AI advisory, IMD alerts, and climate analytics." />
+  <meta name="keywords" content="WeatherGPT, AI weather forecast, IMD alerts, monsoon radar, air quality AQI, climate intelligence India" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Marked.js for Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css?v=2.0" />
+</head>
+<body>
+
+  <!-- Background Canvas & Ambient Glow -->
+  <canvas id="weather-canvas" class="weather-canvas" aria-hidden="true"></canvas>
+  <div class="bg-ambient" aria-hidden="true">
+    <div class="orb orb-1" id="orb-1"></div>
+    <div class="orb orb-2" id="orb-2"></div>
+    <div class="orb orb-3" id="orb-3"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       HEADER — clean, single-row
+       ═══════════════════════════════════════════════════════ -->
+  <header class="header" id="header">
+    <div class="header-inner">
+
+      <!-- Brand -->
+      <div class="logo-wrapper">
+        <a class="logo" href="#" id="logo-link" aria-label="WeatherGPT Home">
+          <div class="logo-icon-wrap">
+            <span class="logo-icon">⛅</span>
+            <span class="logo-pulse"></span>
+          </div>
+          <div class="logo-text-group">
+            <span class="logo-title">Weather<span class="logo-accent">GPT</span></span>
+          </div>
+        </a>
+        <div class="status-pill" id="backend-status" title="System Connection Status">
+          <span class="status-dot online"></span>
+          <span class="status-text" id="status-label">Live</span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="nav" role="navigation" aria-label="Main Navigation">
+        <button class="nav-btn active" id="nav-dashboard" data-section="dashboard" aria-current="page">
+          <span class="nav-icon">🌤️</span>
+          <span class="nav-label">Dashboard</span>
+        </button>
+        <button class="nav-btn" id="nav-radar" data-section="radar">
+          <span class="nav-icon">🛰️</span>
+          <span class="nav-label">Radar</span>
+          <span class="nav-badge new-badge">LIVE</span>
+        </button>
+        <button class="nav-btn" id="nav-compare" data-section="compare">
+          <span class="nav-icon">⚔️</span>
+          <span class="nav-label">Compare</span>
+        </button>
+        <button class="nav-btn" id="nav-chat" data-section="chat">
+          <span class="nav-icon">🤖</span>
+          <span class="nav-label">AI Advisor</span>
+          <span class="nav-badge ai-badge">Gemini</span>
+        </button>
+        <button class="nav-btn" id="nav-alerts" data-section="alerts">
+          <span class="nav-icon">🚨</span>
+          <span class="nav-label">Alerts</span>
+          <span class="alert-dot" id="alert-dot" style="display:none"></span>
+        </button>
+        <button class="nav-btn" id="nav-climate" data-section="climate">
+          <span class="nav-icon">📈</span>
+          <span class="nav-label">Climate</span>
+        </button>
+      </nav>
+
+      <!-- Right: unit toggle + search -->
+      <div class="header-actions">
+        <div class="unit-toggle" id="unit-toggle" role="radiogroup" aria-label="Temperature Unit">
+          <button class="unit-btn active" id="unit-c" data-unit="C" title="Celsius">°C</button>
+          <button class="unit-btn" id="unit-f" data-unit="F" title="Fahrenheit">°F</button>
+        </div>
+        <div class="search-wrap" role="search">
+          <div class="search-box" id="search-box">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              id="city-input"
+              class="search-input"
+              placeholder="Search city…"
+              autocomplete="off"
+              aria-label="Search for a city"
+            />
+            <button class="voice-search-btn" id="voice-search-btn" title="Voice Search" aria-label="Search by voice">🎙️</button>
+            <button class="geo-btn" id="geo-btn" title="Use my GPS location" aria-label="Use GPS location">📍</button>
+          </div>
+          <div class="search-suggestions" id="search-suggestions"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Quick city chips — slim, scrollable, below header inner -->
+    <div class="quick-cities-bar" id="quick-cities-bar">
+      <div class="city-chips" id="quick-city-chips">
+        <button class="city-chip active" data-city="Mumbai">Mumbai</button>
+        <button class="city-chip" data-city="Delhi">Delhi</button>
+        <button class="city-chip" data-city="Bangalore">Bengaluru</button>
+        <button class="city-chip" data-city="Chennai">Chennai</button>
+        <button class="city-chip" data-city="Kolkata">Kolkata</button>
+        <button class="city-chip" data-city="Hyderabad">Hyderabad</button>
+        <button class="city-chip" data-city="Shimla">Shimla</button>
+        <button class="city-chip" data-city="Jaipur">Jaipur</button>
+        <button class="city-chip" data-city="Kochi">Kochi</button>
+        <button class="city-chip" data-city="London">London</button>
+        <button class="city-chip" data-city="Tokyo">Tokyo</button>
+        <button class="city-chip" data-city="New York">New York</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MAIN APP
+       ═══════════════════════════════════════════════════════ -->
+  <main class="main" id="main">
+
+    <!-- ─────────────────────────────────────────────────────
+         SECTION 1: DASHBOARD
+         ───────────────────────────────────────────────────── -->
+    <section class="section active" id="section-dashboard" aria-label="Weather Dashboard">
+
+      <!-- IMD Alert Banner (hidden by default) -->
+      <div class="alert-banner glass-card" id="alert-banner" style="display:none">
+        <div class="alert-banner-left">
+          <span class="alert-pulse-icon">🚨</span>
+          <div class="alert-banner-content">
+            <div class="alert-banner-title" id="alert-banner-title">IMD Weather Warning Active</div>
+            <div class="alert-banner-text" id="alert-text">High alert warning issued for the current location.</div>
+          </div>
+        </div>
+        <button class="alert-action-btn" id="alert-view-btn">View Details →</button>
+      </div>
+
+      <!-- ── ZONE A: HERO ────────────────────────────────── -->
+      <div class="dash-hero-wrap">
+
+        <!-- Left: Location + Temperature -->
+        <div class="glass-card hero-main-card" id="hero-temp-card">
+          <div class="hero-location-row">
+            <div class="hero-loc-left">
+              <div class="hero-city-name" id="city-name">Mumbai, IN</div>
+              <div class="hero-city-sub">
+                <span class="hero-date" id="city-date">Sunday, 20 September 2026</span>
+                <span class="hero-coord" id="city-coords">19.07°N, 72.87°E</span>
+              </div>
+            </div>
+            <div class="condition-pill" id="condition-badge">
+              <span class="condition-icon" id="condition-icon">☀️</span>
+              <span class="condition-label" id="condition-label">Clear Sky</span>
+            </div>
+          </div>
+
+          <div class="hero-temp-row">
+            <div class="temp-display-wrap">
+              <div class="temp-main-value" id="temp-main">31</div>
+              <div class="temp-unit-sign" id="temp-unit-sign">°C</div>
+            </div>
+            <div class="hero-temp-right">
+              <div class="temp-feels-line" id="temp-feels">Feels like <strong>37.6°C</strong></div>
+              <div class="temp-range-bar-wrap">
+                <span class="range-min" id="temp-min">31°</span>
+                <div class="range-bar-track">
+                  <div class="range-bar-fill" id="temp-range-fill" style="width:50%;"></div>
+                </div>
+                <span class="range-max" id="temp-max">31°</span>
+              </div>
+              <p class="weather-summary-text" id="weather-desc">Clear sky. Ideal thermal equilibrium for current seasonal activity.</p>
+            </div>
+          </div>
+
+          <!-- At-a-glance mini stat pills -->
+          <div class="hero-stats-strip">
+            <div class="stat-pill">
+              <span class="stat-pill-icon">💧</span>
+              <span class="stat-pill-label">Humidity</span>
+              <span class="stat-pill-val" id="mini-humidity">70%</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-pill-icon">💨</span>
+              <span class="stat-pill-label">Wind</span>
+              <span class="stat-pill-val" id="mini-wind">22 km/h</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-pill-icon">🔆</span>
+              <span class="stat-pill-label">UV Index</span>
+              <span class="stat-pill-val" id="mini-uv">4.5</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-pill-icon">👁️</span>
+              <span class="stat-pill-label">Visibility</span>
+              <span class="stat-pill-val" id="mini-visibility">10 km</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-pill-icon">🌡️</span>
+              <span class="stat-pill-label">Pressure</span>
+              <span class="stat-pill-val" id="mini-pressure">1011 hPa</span>
+            </div>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="hero-actions">
+            <button class="btn-primary" id="voice-briefing-btn" title="Listen to AI Weather Briefing">
+              🔊 AI Briefing
+            </button>
+            <button class="btn-ghost" id="quick-ask-hero-btn">
+              💬 Ask WeatherGPT
+            </button>
+            <span class="data-source-badge" id="data-source-badge">
+              <span class="source-dot"></span> Live OWM
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── ZONE B: DETAIL GRID (2×2) ──────────────────── -->
+      <div class="dash-section-label">Atmospheric Details</div>
+      <div class="detail-grid">
+
+        <!-- Card 1: Air Quality -->
+        <div class="glass-card detail-card" id="card-aqi">
+          <div class="detail-card-header">
+            <div class="detail-card-title">
+              <span class="detail-icon">🌿</span>
+              <span>Air Quality</span>
+            </div>
+            <span class="detail-badge aqi-badge" id="aqi-badge">Good (AQI 25)</span>
+          </div>
+          <div class="aqi-gauge-wrap">
+            <div class="aqi-gauge-bar">
+              <div class="aqi-gauge-fill" id="aqi-gauge-fill" style="width:20%;"></div>
+            </div>
+          </div>
+          <div class="pollutant-chips" id="pollutant-chips">
+            <div class="p-chip"><span class="p-name">PM2.5</span><span class="p-val" id="val-pm25">38 µg</span></div>
+            <div class="p-chip"><span class="p-name">PM10</span><span class="p-val" id="val-pm10">64 µg</span></div>
+            <div class="p-chip"><span class="p-name">NO₂</span><span class="p-val" id="val-no2">22 ppb</span></div>
+            <div class="p-chip"><span class="p-name">O₃</span><span class="p-val" id="val-o3">45 ppb</span></div>
+          </div>
+          <div class="detail-footer-note" id="aqi-advice">Air quality is pristine. Ideal for all outdoor activities.</div>
+        </div>
+
+        <!-- Card 2: Sun & Wind combined -->
+        <div class="glass-card detail-card" id="card-sun-wind">
+          <div class="sun-wind-split">
+            <!-- Sun -->
+            <div class="split-col">
+              <div class="detail-card-header">
+                <div class="detail-card-title">
+                  <span class="detail-icon">☀️</span>
+                  <span>Sun</span>
+                </div>
+                <span class="sun-status-tag" id="sun-status-tag">Day Cycle</span>
+              </div>
+              <div class="sun-arc-visual">
+                <svg viewBox="0 0 200 80" class="sun-arc-svg" id="sun-arc-svg">
+                  <path d="M 10 70 Q 100 0 190 70" fill="none" stroke="rgba(255,255,255,0.12)" stroke-dasharray="4 4" stroke-width="2"/>
+                  <path d="M 10 70 Q 100 0 190 70" fill="none" stroke="url(#sunGradient)" stroke-width="3" id="sun-arc-progress"/>
+                  <defs>
+                    <linearGradient id="sunGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#f59e0b"/>
+                      <stop offset="100%" stop-color="#ef4444"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="100" cy="35" r="7" fill="#fbbf24" id="sun-icon-orb" filter="drop-shadow(0 0 6px #f59e0b)"/>
+                </svg>
+              </div>
+              <div class="sun-times-row">
+                <div class="sun-time-item">
+                  <span class="sun-time-label">Sunrise</span>
+                  <span class="sun-time-val" id="val-sunrise">06:24 AM</span>
+                </div>
+                <div class="sun-time-item" style="text-align:right">
+                  <span class="sun-time-label">Sunset</span>
+                  <span class="sun-time-val" id="val-sunset">06:38 PM</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="split-divider"></div>
+
+            <!-- Wind -->
+            <div class="split-col">
+              <div class="detail-card-header">
+                <div class="detail-card-title">
+                  <span class="detail-icon">💨</span>
+                  <span>Wind</span>
+                </div>
+                <span class="wind-speed-badge" id="val-wind">22 km/h</span>
+              </div>
+              <div class="wind-body">
+                <div class="wind-compass-circle">
+                  <div class="compass-marker n">N</div>
+                  <div class="compass-marker e">E</div>
+                  <div class="compass-marker s">S</div>
+                  <div class="compass-marker w">W</div>
+                  <div class="compass-arrow-wrap" id="compass-arrow-wrap" style="transform: rotate(280deg);">
+                    <div class="compass-arrow"></div>
+                  </div>
+                </div>
+                <div class="wind-details-list">
+                  <div class="w-row"><span class="w-lbl">Direction</span><span class="w-val" id="val-wind-dir">W (280°)</span></div>
+                  <div class="w-row"><span class="w-lbl">Gusts</span><span class="w-val" id="val-wind-gust">30 km/h</span></div>
+                  <div class="w-row"><span class="w-lbl">Pressure</span><span class="w-val" id="val-pressure">1011 hPa</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: UV Index -->
+        <div class="glass-card detail-card" id="card-uv">
+          <div class="detail-card-header">
+            <div class="detail-card-title">
+              <span class="detail-icon">🔆</span>
+              <span>UV Index</span>
+            </div>
+            <span class="detail-badge uv-badge" id="val-uv-badge">Moderate (3–5)</span>
+          </div>
+          <div class="uv-meter-wrap">
+            <div class="uv-numeric-display" id="val-uv">4.5</div>
+            <div class="uv-scale-bar">
+              <div class="uv-scale-point" style="background:#22c55e;" title="Low (0–2)"></div>
+              <div class="uv-scale-point" style="background:#eab308;" title="Moderate (3–5)"></div>
+              <div class="uv-scale-point" style="background:#f97316;" title="High (6–7)"></div>
+              <div class="uv-scale-point" style="background:#ef4444;" title="Very High (8–10)"></div>
+              <div class="uv-scale-point" style="background:#a855f7;" title="Extreme (11+)"></div>
+            </div>
+          </div>
+          <div class="detail-footer-note" id="uv-advice">Wear SPF 30+ sunglasses during midday.</div>
+        </div>
+
+        <!-- Card 4: Humidity + Visibility -->
+        <div class="glass-card detail-card" id="card-hum-vis">
+          <div class="sun-wind-split">
+            <!-- Humidity -->
+            <div class="split-col">
+              <div class="detail-card-header">
+                <div class="detail-card-title">
+                  <span class="detail-icon">💧</span>
+                  <span>Humidity</span>
+                </div>
+                <span class="hum-val-pill" id="val-humidity">70%</span>
+              </div>
+              <div class="humidity-fill-bar-wrap">
+                <div class="hum-fill-bar">
+                  <div class="hum-fill-progress" id="bar-humidity" style="width:70%;"></div>
+                </div>
+              </div>
+              <div class="hum-sub-info">
+                <div class="hum-col"><span>Dew Point</span><strong id="val-dewpoint">24.1°C</strong></div>
+                <div class="hum-col"><span>Precip.</span><strong id="val-rain-prob">25%</strong></div>
+              </div>
+            </div>
+
+            <div class="split-divider"></div>
+
+            <!-- Visibility -->
+            <div class="split-col">
+              <div class="detail-card-header">
+                <div class="detail-card-title">
+                  <span class="detail-icon">👁️</span>
+                  <span>Visibility</span>
+                </div>
+                <span class="vis-val-pill" id="val-visibility">10 km</span>
+              </div>
+              <div class="vis-details-grid">
+                <div class="vis-box">
+                  <span class="vis-label">Atmosphere</span>
+                  <strong class="vis-value" id="val-vis-desc">Clear View</strong>
+                </div>
+                <div class="vis-box">
+                  <span class="vis-label">Cloud Cover</span>
+                  <strong class="vis-value" id="val-cloud-cover">45%</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── ZONE C: FORECAST ────────────────────────────── -->
+      <div class="dash-section-label">Forecast</div>
+
+      <!-- 24-Hour Chart -->
+      <div class="glass-card forecast-chart-card">
+        <div class="forecast-chart-header">
+          <div class="forecast-title-group">
+            <h2 class="forecast-section-title">24-Hour Forecast</h2>
+            <p class="forecast-section-sub">Temperature, rain probability, and wind speed</p>
+          </div>
+          <div class="hourly-tabs">
+            <button class="hourly-tab active" id="tab-hourly-temp">Temperature</button>
+            <button class="hourly-tab" id="tab-hourly-rain">Rain %</button>
+            <button class="hourly-tab" id="tab-hourly-wind">Wind</button>
+          </div>
+        </div>
+        <div class="hourly-chart-container">
+          <canvas id="hourly-chart" height="90"></canvas>
+        </div>
+        <div class="hourly-timeline-scroller" id="hourly-timeline"></div>
+      </div>
+
+      <!-- 7-Day Forecast -->
+      <div class="glass-card forecast-week-card">
+        <div class="forecast-chart-header">
+          <div class="forecast-title-group">
+            <h2 class="forecast-section-title">7-Day Outlook</h2>
+            <p class="forecast-section-sub">Extended weather projection</p>
+          </div>
+          <span class="forecast-update-tag" id="forecast-updated">Updated Just Now</span>
+        </div>
+        <div class="forecast-cards-grid" id="forecast-cards"></div>
+      </div>
+
+    </section>
+
+
+    <!-- ─────────────────────────────────────────────────────
+         SECTION 2: RADAR MAP
+         ───────────────────────────────────────────────────── -->
+    <section class="section" id="section-radar" aria-label="Interactive Radar Map">
+      <div class="radar-container glass-card">
+        <div class="radar-header">
+          <div class="radar-title-group">
+            <div class="radar-live-badge"><span class="radar-ping"></span> RADAR LIVE</div>
+            <h2 class="radar-title">Interactive Doppler Radar & Satellite</h2>
+            <p class="radar-desc">Simulated Doppler radar, precipitation, thermal IR, and wind streamline layers across India.</p>
+          </div>
+          <div class="radar-layers" role="tablist">
+            <button class="radar-layer-btn active" data-layer="precip">🌧️ Rain & Radar</button>
+            <button class="radar-layer-btn" data-layer="temp">🌡️ Thermal</button>
+            <button class="radar-layer-btn" data-layer="clouds">☁️ Satellite IR</button>
+            <button class="radar-layer-btn" data-layer="wind">💨 Wind</button>
+          </div>
+        </div>
+
+        <div class="radar-viewport" id="radar-viewport">
+          <canvas id="radar-canvas" class="radar-canvas-view"></canvas>
+          <div class="radar-hud-overlay">
+            <div class="hud-box" id="radar-city-info">
+              <span class="hud-loc">📍 Focus: <strong id="radar-focus-city">Mumbai</strong></span>
+              <span class="hud-stats" id="radar-focus-stats">Precip: 1.2 mm/h · Cloud: 60%</span>
+            </div>
+            <div class="hud-legend" id="radar-legend">
+              <span class="leg-label">Intensity:</span>
+              <div class="leg-gradient-bar"></div>
+              <div class="leg-markers">
+                <span>Light</span><span>Moderate</span><span>Heavy</span><span>Extreme</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="radar-player-controls">
+          <button class="player-btn" id="radar-play-btn" title="Play/Pause">▶ Play</button>
+          <div class="radar-timeline-track">
+            <input type="range" id="radar-slider" min="0" max="100" value="70" class="radar-range-slider" />
+            <div class="timeline-labels">
+              <span>-3h</span><span>-2h</span><span>-1h</span>
+              <span class="timeline-now">NOW</span>
+              <span>+1h (AI)</span>
+            </div>
+          </div>
+          <span class="radar-time-stamp" id="radar-time-stamp">Live Doppler Frame</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ─────────────────────────────────────────────────────
+         SECTION 3: COMPARE
+         ───────────────────────────────────────────────────── -->
+    <section class="section" id="section-compare" aria-label="Dual-City Comparison">
+      <div class="compare-container">
+
+        <div class="compare-header glass-card">
+          <div class="compare-title-wrap">
+            <span class="comp-icon">⚔️</span>
+            <div>
+              <h2 class="compare-title">City Weather Comparison</h2>
+              <p class="compare-subtitle">Compare live meteorological metrics and AI travel verdicts side-by-side.</p>
+            </div>
+          </div>
+          <div class="compare-inputs-row">
+            <div class="comp-input-group">
+              <label for="comp-city-1">City A</label>
+              <input type="text" id="comp-city-1" class="form-input" value="Mumbai" placeholder="First City..." />
+            </div>
+            <div class="comp-vs-badge">VS</div>
+            <div class="comp-input-group">
+              <label for="comp-city-2">City B</label>
+              <input type="text" id="comp-city-2" class="form-input" value="Delhi" placeholder="Second City..." />
+            </div>
+            <button class="comp-run-btn" id="comp-run-btn">⚡ Compare</button>
+          </div>
+        </div>
+
+        <div class="compare-grid">
+
+          <div class="glass-card city-compare-card" id="card-comp-a">
+            <div class="comp-city-head">
+              <span class="comp-tag">CITY A</span>
+              <h3 class="comp-city-name" id="comp-name-a">Mumbai</h3>
+              <div class="comp-weather-badge" id="comp-cond-a">⛅ 29°C · Partly Cloudy</div>
+            </div>
+            <div class="comp-metrics-list">
+              <div class="c-metric"><span class="c-name">Feels Like</span><span class="c-val" id="comp-feels-a">32°C</span></div>
+              <div class="c-metric"><span class="c-name">Humidity</span><span class="c-val" id="comp-hum-a">76%</span></div>
+              <div class="c-metric"><span class="c-name">Air Quality</span><span class="c-val aqi-val" id="comp-aqi-a">78 (Moderate)</span></div>
+              <div class="c-metric"><span class="c-name">Wind</span><span class="c-val" id="comp-wind-a">14 km/h</span></div>
+              <div class="c-metric"><span class="c-name">Rain Chance</span><span class="c-val" id="comp-rain-a">20%</span></div>
+              <div class="c-metric"><span class="c-name">UV Index</span><span class="c-val" id="comp-uv-a">4.8</span></div>
+            </div>
+          </div>
+
+          <div class="glass-card comp-delta-card" id="comp-delta-card">
+            <h4 class="delta-title">Key Differences</h4>
+            <div class="delta-items" id="comp-delta-list">
+              <div class="delta-row"><span class="d-lbl">Temperature</span><strong id="delta-temp">+3.5°C warmer in Mumbai</strong></div>
+              <div class="delta-row"><span class="d-lbl">Air Quality</span><strong id="delta-aqi">Mumbai has cleaner air</strong></div>
+              <div class="delta-row"><span class="d-lbl">Rain Risk</span><strong id="delta-rain">Delhi is drier today</strong></div>
+            </div>
+            <div class="ai-verdict-box">
+              <div class="verdict-head">🤖 WeatherGPT Verdict</div>
+              <p class="verdict-body" id="comp-ai-verdict">
+                Mumbai offers coastal humid weather with cleaner air, while Delhi experiences higher continental warmth. For outdoor activities, Mumbai is more favorable today.
+              </p>
+            </div>
+          </div>
+
+          <div class="glass-card city-compare-card" id="card-comp-b">
+            <div class="comp-city-head">
+              <span class="comp-tag">CITY B</span>
+              <h3 class="comp-city-name" id="comp-name-b">Delhi</h3>
+              <div class="comp-weather-badge" id="comp-cond-b">☀️ 33°C · Clear & Hazy</div>
+            </div>
+            <div class="comp-metrics-list">
+              <div class="c-metric"><span class="c-name">Feels Like</span><span class="c-val" id="comp-feels-b">35°C</span></div>
+              <div class="c-metric"><span class="c-name">Humidity</span><span class="c-val" id="comp-hum-b">42%</span></div>
+              <div class="c-metric"><span class="c-name">Air Quality</span><span class="c-val aqi-val poor" id="comp-aqi-b">145 (Poor)</span></div>
+              <div class="c-metric"><span class="c-name">Wind</span><span class="c-val" id="comp-wind-b">8 km/h</span></div>
+              <div class="c-metric"><span class="c-name">Rain Chance</span><span class="c-val" id="comp-rain-b">5%</span></div>
+              <div class="c-metric"><span class="c-name">UV Index</span><span class="c-val" id="comp-uv-b">7.2</span></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ─────────────────────────────────────────────────────
+         SECTION 4: AI ADVISOR
+         ───────────────────────────────────────────────────── -->
+    <section class="section" id="section-chat" aria-label="AI Weather Chat">
+      <div class="chat-layout">
+
+        <aside class="chat-sidebar glass-card">
+          <div class="sidebar-header">
+            <span class="sidebar-icon">⚙️</span>
+            <h2 class="sidebar-title">Advisory Config</h2>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="chat-location">Location</label>
+            <input type="text" id="chat-location" class="form-input" placeholder="e.g. Mumbai" value="Mumbai" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="chat-domain">Sector Domain</label>
+            <select id="chat-domain" class="form-select">
+              <option value="General">General Public</option>
+              <option value="Agriculture / Farming">Agriculture & Farming</option>
+              <option value="Aviation">Aviation</option>
+              <option value="Flood &amp; Cyclone Warning">Flood & Cyclone</option>
+              <option value="Smart City / Urban">Smart City & Urban</option>
+              <option value="Marine &amp; Fisheries">Marine & Fisheries</option>
+              <option value="Climate Research">Climate Research</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="chat-lang">Language</label>
+            <select id="chat-lang" class="form-select">
+              <option value="en">English</option>
+              <option value="hi">हिंदी (Hindi)</option>
+              <option value="ta">தமிழ் (Tamil)</option>
+              <option value="te">తెలుగు (Telugu)</option>
+              <option value="bn">বাংলা (Bengali)</option>
+              <option value="kn">ಕನ್ನಡ (Kannada)</option>
+              <option value="mr">मराठी (Marathi)</option>
+              <option value="gu">ગુજરાતી (Gujarati)</option>
+              <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+              <option value="ml">മലയാളം (Malayalam)</option>
+            </select>
+          </div>
+
+          <div class="sidebar-divider"></div>
+
+          <!-- AI Quick prompts — moved here from dashboard -->
+          <p class="sidebar-hint">Quick Questions</p>
+          <div class="suggestion-list" id="suggestion-list">
+            <button class="suggestion-btn" data-q="Should I carry an umbrella today?">☂️ Umbrella needed today?</button>
+            <button class="suggestion-btn" data-q="What is the recommended clothing advisory for today?">👕 Clothing advisory?</button>
+            <button class="suggestion-btn" data-q="Is it safe for driving and aviation given current visibility?">🚗 Safe to drive & fly?</button>
+            <button class="suggestion-btn" data-q="What are the farming and irrigation recommendations for today?">🌾 Farmer irrigation advice?</button>
+            <button class="suggestion-btn" data-q="Are there any coastal rough sea warnings for fishermen?">⚓ Marine advisories?</button>
+            <button class="suggestion-btn" data-q="What health precautions are advised given today's AQI?">😷 AQI health tips?</button>
+            <button class="suggestion-btn" data-q="What is the current atmospheric summary and 24h outlook?">🌤️ Atmospheric summary?</button>
+            <button class="suggestion-btn" data-q="Are there any flash flood or heavy rainfall warnings this week?">🌊 Flash flood risks?</button>
+          </div>
+
+          <button class="clear-chat-btn" id="clear-chat-btn">🗑️ Clear Chat</button>
+        </aside>
+
+        <div class="chat-area glass-card">
+          <div class="chat-top-bar">
+            <div class="chat-active-info">
+              <div class="bot-status-avatar">🤖</div>
+              <div>
+                <div class="bot-name">WeatherGPT — Gemini Pro</div>
+                <div class="bot-meta"><span id="chat-active-domain">Domain: General</span> · <span id="chat-active-lang">English</span></div>
+              </div>
+            </div>
+            <div class="chat-top-actions">
+              <button class="chat-action-btn" id="tts-toggle-btn" title="Toggle Voice Readout">🔊 Voice: On</button>
+            </div>
+          </div>
+
+          <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
+            <div class="chat-msg ai-msg" id="welcome-msg">
+              <div class="msg-avatar">🤖</div>
+              <div class="msg-bubble">
+                <div class="msg-header-tag">WeatherGPT Assistant</div>
+                <p>Hello! I'm <strong>WeatherGPT</strong>, your AI meteorological advisor powered by Google Gemini and live OpenWeatherMap data.</p>
+                <p>I can answer hyper-local forecasts, extreme weather questions, and give tailored insights for Agriculture, Aviation, Maritime, Urban Planning, and Public Safety — in 10 Indian languages.</p>
+                <p>Type a question or pick a quick prompt from the sidebar. 🌤️</p>
+                <div class="msg-time">Just now</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-input-area">
+            <div class="typing-indicator" id="typing-indicator" style="display:none">
+              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              <span class="typing-text">WeatherGPT is analyzing atmospheric models…</span>
+            </div>
+            <div class="chat-input-row">
+              <button class="mic-btn" id="chat-mic-btn" title="Speak your question" aria-label="Voice input">🎙️</button>
+              <textarea
+                id="chat-input"
+                class="chat-input"
+                placeholder="Ask anything — 'Will it rain tomorrow in Mumbai during my commute?'"
+                rows="1"
+                aria-label="Ask a weather question"
+              ></textarea>
+              <button class="send-btn" id="chat-send-btn" aria-label="Send message">
+                <span>Send</span>
+                <span class="send-icon">🚀</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ─────────────────────────────────────────────────────
+         SECTION 5: ALERTS
+         ───────────────────────────────────────────────────── -->
+    <section class="section" id="section-alerts" aria-label="Extreme Weather Alerts">
+      <div class="alerts-container">
+
+        <div class="glass-card alerts-hub-head">
+          <div class="alerts-head-content">
+            <div class="head-badge">🚨 DISASTER EARLY WARNING CENTER</div>
+            <h2 class="alerts-page-title">IMD Severe Weather Advisories</h2>
+            <p class="alerts-page-desc">Real-time threat monitoring for Cyclones, Cloudbursts, Flash Floods, Heat Waves, and Gale Winds across Indian districts.</p>
+          </div>
+          <div class="alerts-filter-tabs">
+            <button class="alert-filter-btn active" data-filter="all">All</button>
+            <button class="alert-filter-btn filter-red" data-filter="red">🔴 Red</button>
+            <button class="alert-filter-btn filter-orange" data-filter="orange">🟠 Orange</button>
+            <button class="alert-filter-btn filter-yellow" data-filter="yellow">🟡 Yellow</button>
+            <button class="alert-filter-btn filter-green" data-filter="green">🟢 Normal</button>
+          </div>
+        </div>
+
+        <div class="alerts-layout-grid">
+
+          <div class="glass-card alerts-feed-card">
+            <div class="feed-header">
+              <h3 class="feed-title">Active Alerts — <span id="alerts-city-display">Mumbai</span></h3>
+              <button class="refresh-alerts-btn" id="refresh-alerts-btn">🔄 Refresh</button>
+            </div>
+            <div class="alerts-list" id="alerts-list"></div>
+          </div>
+
+          <div class="alerts-sidebar-wrap">
+
+            <div class="glass-card protocol-card">
+              <h3 class="protocol-title">🛡️ Emergency Safety Protocols</h3>
+              <div class="protocol-list">
+                <div class="protocol-item">
+                  <span class="p-icon">🌊</span>
+                  <div><strong>Urban Flooding:</strong> Avoid waterlogged underpasses, disconnect basement power, store 48h emergency water.</div>
+                </div>
+                <div class="protocol-item">
+                  <span class="p-icon">⚡</span>
+                  <div><strong>Lightning:</strong> Seek shelter in enclosed buildings. Do not stand under tall trees.</div>
+                </div>
+                <div class="protocol-item">
+                  <span class="p-icon">🔥</span>
+                  <div><strong>Heatwave:</strong> Drink ORS/electrolytes, avoid direct sunlight between 12:00 PM–4:00 PM.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card helplines-card">
+              <h3 class="helpline-title">📞 Emergency Helplines</h3>
+              <div class="helplines-grid">
+                <div class="helpline-badge"><span>National Emergency</span><strong>112</strong></div>
+                <div class="helpline-badge"><span>NDRF Helpline</span><strong>1078</strong></div>
+                <div class="helpline-badge"><span>State Disaster</span><strong>1070</strong></div>
+                <div class="helpline-badge"><span>Ambulance</span><strong>108</strong></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ─────────────────────────────────────────────────────
+         SECTION 6: CLIMATE
+         ───────────────────────────────────────────────────── -->
+    <section class="section" id="section-climate" aria-label="Climate Trends">
+      <div class="climate-container">
+
+        <div class="glass-card climate-header-card">
+          <div class="climate-head-info">
+            <span class="climate-badge">📊 LONG-TERM CLIMATE INTELLIGENCE</span>
+            <h2 class="climate-page-title">Historical Climate Analytics</h2>
+            <p class="climate-page-desc">Explore 40+ years of ERA5 reanalysis records (1980–2026) with AI anomaly detection.</p>
+          </div>
+          <div class="climate-form-row">
+            <div class="c-input-wrap">
+              <label for="climate-city">City</label>
+              <input type="text" id="climate-city" class="form-input" value="Mumbai" placeholder="City..." />
+            </div>
+            <div class="c-input-wrap">
+              <label for="climate-month">Month</label>
+              <select id="climate-month" class="form-select">
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9" selected>September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+            </div>
+            <button class="climate-fetch-btn" id="climate-fetch-btn">⚡ Analyze</button>
+          </div>
+        </div>
+
+        <div class="climate-grid">
+
+          <div class="climate-stat-cards">
+            <div class="glass-card c-stat-box">
+              <div class="c-stat-icon">🌡️</div>
+              <div class="c-stat-val" id="clim-val-temp">28.4 °C</div>
+              <div class="c-stat-label">Avg Temperature</div>
+            </div>
+            <div class="glass-card c-stat-box">
+              <div class="c-stat-icon">💧</div>
+              <div class="c-stat-val" id="clim-val-hum">82.1 %</div>
+              <div class="c-stat-label">Avg Humidity</div>
+            </div>
+            <div class="glass-card c-stat-box">
+              <div class="c-stat-icon">🌧️</div>
+              <div class="c-stat-val" id="clim-val-rain">342 mm</div>
+              <div class="c-stat-label">Monthly Rainfall</div>
+            </div>
+          </div>
+
+          <div class="glass-card climate-chart-card">
+            <div class="c-chart-head">
+              <h3 class="c-chart-title">50-Year Temperature & Rainfall Variance (1980–2026)</h3>
+              <span class="c-model-tag">ERA5 High-Res Grid</span>
+            </div>
+            <div class="climate-canvas-wrap">
+              <canvas id="climate-chart" height="120"></canvas>
+            </div>
+          </div>
+
+          <div class="glass-card climate-ai-summary-card">
+            <div class="ai-summary-head">
+              <span class="ai-icon">🤖</span>
+              <h3 class="ai-summary-title">Gemini AI Climate Summary</h3>
+            </div>
+            <div class="ai-summary-body" id="clim-ai-summary">
+              Analyzing historical climate data for Mumbai in September...
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast & Loading Overlay -->
+  <div class="toast-container" id="toast-container" aria-live="assertive"></div>
+
+  <div class="loading-overlay" id="loading-overlay" style="display:none">
+    <div class="loader-card glass-card">
+      <div class="loader-spinner"></div>
+      <div class="loader-text" id="loader-text">Fetching live meteorological data…</div>
+    </div>
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script src="js/api.js?v=2.0"></script>
+  <script src="js/charts.js?v=2.0"></script>
+  <script src="js/weather.js?v=2.0"></script>
+  <script src="js/chat.js?v=2.0"></script>
+  <script src="js/app.js?v=2.0"></script>
+</body>
+</html>

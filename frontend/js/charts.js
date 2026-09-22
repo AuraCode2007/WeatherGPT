@@ -53,8 +53,9 @@ const WeatherCharts = (() => {
       grad.addColorStop(0, 'rgba(56, 189, 248, 0.45)');
       grad.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
 
+      const tempLabel = (typeof i18n !== 'undefined') ? i18n.t('forecast.tab_temp') : 'Temperature';
       datasetConfig = {
-        label: `Temperature (°${isFahrenheit ? 'F' : 'C'})`,
+        label: `${tempLabel} (°${isFahrenheit ? 'F' : 'C'})`,
         data: values,
         borderColor: '#38bdf8',
         borderWidth: 3,
@@ -82,8 +83,9 @@ const WeatherCharts = (() => {
         baseRain
       ];
 
+      const rainLabel = (typeof i18n !== 'undefined') ? i18n.t('card.precip') : 'Precipitation Probability';
       datasetConfig = {
-        label: 'Precipitation Probability (%)',
+        label: `${rainLabel} (%)`,
         data: values,
         backgroundColor: 'rgba(59, 130, 246, 0.7)',
         borderColor: '#60a5fa',
@@ -109,8 +111,9 @@ const WeatherCharts = (() => {
       grad.addColorStop(0, 'rgba(168, 85, 247, 0.4)');
       grad.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
 
+      const windLabel = (typeof i18n !== 'undefined') ? i18n.t('hero.wind') : 'Wind Speed';
       datasetConfig = {
-        label: 'Wind Speed (km/h)',
+        label: `${windLabel} (${isFahrenheit ? 'mph' : 'km/h'})`,
         data: values,
         borderColor: '#c084fc',
         borderWidth: 2.5,

@@ -1,14 +1,14 @@
 /**
- * app.js — WeatherGPT Core Orchestrator & Interactive Visualizer
- * Manages dynamic weather particle canvas, radar simulation, dual-city comparison,
- * IMD alerts, search suggestions, and application bootstrap.
+ * app.js — METEOR Operations Orchestrator & Telemetry Visualizer
+ * Controls particle engine, radar simulation, city analytics, hazard alerts,
+ * and application state management.
  */
 
 const App = (() => {
   let currentCity = 'Mumbai';
-  const RECENT_KEY = 'weathergpt_recent_cities';
+  const RECENT_KEY = 'meteor_recent_stations';
 
-  // ── 35+ Indian & Global Cities for Instant Autocomplete ──────────────
+  // ── 35+ Indian & Global Meteorological Stations for Autocomplete ──────
   const popularCities = [
     'Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata',
     'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat',
@@ -67,11 +67,11 @@ const App = (() => {
       particles.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        radius: Math.random() * 2.5 + 1,
+        radius: Math.random() * 2 + 1,
         speedX: (Math.random() - 0.5) * 0.5,
         speedY: Math.random() * 2 + 1,
-        length: Math.random() * 18 + 10,
-        opacity: Math.random() * 0.5 + 0.2
+        length: Math.random() * 16 + 8,
+        opacity: Math.random() * 0.4 + 0.15
       });
     }
   }
@@ -84,11 +84,10 @@ const App = (() => {
     const w = canvas.width;
     const h = canvas.height;
 
-    // Thunderstorm Flash Simulation
     if (currentWeatherType === 'thunder') {
       lightningTimer++;
       if (lightningTimer > 180 && Math.random() < 0.03) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
         ctx.fillRect(0, 0, w, h);
         lightningTimer = 0;
       }
@@ -96,28 +95,27 @@ const App = (() => {
 
     particles.forEach(p => {
       if (currentWeatherType === 'rain' || currentWeatherType === 'thunder') {
-        ctx.strokeStyle = `rgba(147, 197, 253, ${p.opacity})`;
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = `rgba(56, 189, 248, ${p.opacity})`;
+        ctx.lineWidth = 1.2;
         ctx.beginPath();
         ctx.moveTo(p.x, p.y);
         ctx.lineTo(p.x - 1, p.y + p.length);
         ctx.stroke();
 
-        p.y += p.speedY * 5;
+        p.y += p.speedY * 4.5;
         p.x -= 0.5;
         if (p.y > h) { p.y = -20; p.x = Math.random() * w; }
       } else if (currentWeatherType === 'snow') {
         ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius * 1.5, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, p.radius * 1.3, 0, Math.PI * 2);
         ctx.fill();
 
         p.y += p.speedY * 0.8;
         p.x += Math.sin(p.y * 0.02) * 0.5;
         if (p.y > h) { p.y = -10; p.x = Math.random() * w; }
       } else if (currentWeatherType === 'clear') {
-        // Floating warm sun dust motes
-        ctx.fillStyle = `rgba(251, 191, 36, ${p.opacity * 0.4})`;
+        ctx.fillStyle = `rgba(245, 158, 11, ${p.opacity * 0.3})`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fill();
@@ -126,13 +124,12 @@ const App = (() => {
         p.x += Math.cos(p.y * 0.01) * 0.3;
         if (p.y < 0) { p.y = h + 10; p.x = Math.random() * w; }
       } else {
-        // Floating cloud particles
-        ctx.fillStyle = `rgba(186, 230, 253, ${p.opacity * 0.25})`;
+        ctx.fillStyle = `rgba(148, 163, 184, ${p.opacity * 0.2})`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius * 2, 0, Math.PI * 2);
         ctx.fill();
 
-        p.x += 0.4;
+        p.x += 0.3;
         if (p.x > w) { p.x = -10; p.y = Math.random() * h; }
       }
     });
@@ -184,7 +181,7 @@ const App = (() => {
     const w = radarCanvas.width;
     const h = radarCanvas.height;
 
-    radarCtx.fillStyle = '#080e1e';
+    radarCtx.fillStyle = '#040810';
     radarCtx.fillRect(0, 0, w, h);
 
     if (radarPlaying) radarStep += 0.02;
@@ -209,8 +206,8 @@ const App = (() => {
 
       const grad = radarCtx.createRadialGradient(bx, by, 0, bx, by, radius);
       if (radarLayer === 'precip') {
-        grad.addColorStop(0, 'rgba(34, 197, 94, 0.6)');
-        grad.addColorStop(0.5, 'rgba(234, 179, 8, 0.4)');
+        grad.addColorStop(0, 'rgba(16, 185, 129, 0.6)');
+        grad.addColorStop(0.5, 'rgba(245, 158, 11, 0.4)');
         grad.addColorStop(0.8, 'rgba(239, 68, 68, 0.3)');
         grad.addColorStop(1, 'transparent');
       } else if (radarLayer === 'temp') {
@@ -218,11 +215,11 @@ const App = (() => {
         grad.addColorStop(0.6, 'rgba(245, 158, 11, 0.4)');
         grad.addColorStop(1, 'transparent');
       } else if (radarLayer === 'clouds') {
-        grad.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
-        grad.addColorStop(0.7, 'rgba(203, 213, 225, 0.3)');
+        grad.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
+        grad.addColorStop(0.7, 'rgba(148, 163, 184, 0.25)');
         grad.addColorStop(1, 'transparent');
       } else {
-        grad.addColorStop(0, 'rgba(0, 240, 255, 0.6)');
+        grad.addColorStop(0, 'rgba(56, 189, 248, 0.6)');
         grad.addColorStop(1, 'transparent');
       }
 
@@ -234,17 +231,17 @@ const App = (() => {
 
     // Draw Radar Sweep Beam
     const sweepAngle = radarStep * 2;
-    radarCtx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
-    radarCtx.lineWidth = 2;
+    radarCtx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+    radarCtx.lineWidth = 1.5;
     radarCtx.beginPath();
     radarCtx.moveTo(w / 2, h / 2);
     radarCtx.lineTo(w / 2 + Math.cos(sweepAngle) * w, h / 2 + Math.sin(sweepAngle) * w);
     radarCtx.stroke();
 
     // Center City Marker
-    radarCtx.fillStyle = '#00f0ff';
+    radarCtx.fillStyle = '#38bdf8';
     radarCtx.beginPath();
-    radarCtx.arc(w / 2, h / 2, 6, 0, Math.PI * 2);
+    radarCtx.arc(w / 2, h / 2, 5, 0, Math.PI * 2);
     radarCtx.fill();
 
     requestAnimationFrame(animateRadar);
@@ -257,7 +254,7 @@ const App = (() => {
     const nameA = cityAInput ? cityAInput.value.trim() : 'Mumbai';
     const nameB = cityBInput ? cityBInput.value.trim() : 'Delhi';
 
-    showLoader(`Comparing ${nameA} vs ${nameB}…`);
+    showLoader(`Acquiring comparison metrics for ${nameA} vs ${nameB}…`);
 
     try {
       const [dataA, dataB] = await Promise.all([
@@ -273,41 +270,49 @@ const App = (() => {
   }
 
   function renderComparisonCards(a, b) {
+    const condA = (typeof i18n !== 'undefined') ? i18n.translateCondition(a.description || a.condition) : (a.description || a.condition);
+    const condB = (typeof i18n !== 'undefined') ? i18n.translateCondition(b.description || b.condition) : (b.description || b.condition);
     document.getElementById('comp-name-a').textContent = a.city;
-    document.getElementById('comp-cond-a').textContent = `${a.temp}°C · ${a.description || a.condition}`;
+    document.getElementById('comp-cond-a').textContent = `${a.temp}°C · ${condA}`;
     document.getElementById('comp-feels-a').textContent = `${a.feels_like}°C`;
     document.getElementById('comp-hum-a').textContent = `${a.humidity}%`;
-    document.getElementById('comp-aqi-a').textContent = `${a.aqi || 2} (AQI Level)`;
+    document.getElementById('comp-aqi-a').textContent = `${a.aqi || 2} (AQI)`;
     document.getElementById('comp-wind-a').textContent = `${a.wind_speed} km/h`;
     document.getElementById('comp-rain-a').textContent = `${a.rain_prob || 20}%`;
     document.getElementById('comp-uv-a').textContent = `${a.uv_index || 4.5}`;
 
     document.getElementById('comp-name-b').textContent = b.city;
-    document.getElementById('comp-cond-b').textContent = `${b.temp}°C · ${b.description || b.condition}`;
+    document.getElementById('comp-cond-b').textContent = `${b.temp}°C · ${condB}`;
     document.getElementById('comp-feels-b').textContent = `${b.feels_like}°C`;
     document.getElementById('comp-hum-b').textContent = `${b.humidity}%`;
-    document.getElementById('comp-aqi-b').textContent = `${b.aqi || 2} (AQI Level)`;
+    document.getElementById('comp-aqi-b').textContent = `${b.aqi || 2} (AQI)`;
     document.getElementById('comp-wind-b').textContent = `${b.wind_speed} km/h`;
     document.getElementById('comp-rain-b').textContent = `${b.rain_prob || 20}%`;
     document.getElementById('comp-uv-b').textContent = `${b.uv_index || 4.5}`;
 
+    const warmerStr = (typeof i18n !== 'undefined') ? i18n.t('comp.warmer_in') : 'warmer in';
+    const cleanerStr = (typeof i18n !== 'undefined') ? i18n.t('comp.cleaner_aqi') : 'has cleaner AQI';
+    const drierStr = (typeof i18n !== 'undefined') ? i18n.t('comp.drier_today') : 'is drier today';
+
     const deltaTemp = Math.round((a.temp - b.temp) * 10) / 10;
     document.getElementById('delta-temp').textContent = deltaTemp >= 0
-      ? `+${deltaTemp}°C warmer in ${a.city}`
-      : `+${Math.abs(deltaTemp)}°C warmer in ${b.city}`;
+      ? `+${deltaTemp}°C ${warmerStr} ${a.city}`
+      : `+${Math.abs(deltaTemp)}°C ${warmerStr} ${b.city}`;
 
     document.getElementById('delta-aqi').textContent = (a.aqi || 2) <= (b.aqi || 2)
-      ? `${a.city} has superior air quality`
-      : `${b.city} has superior air quality`;
+      ? `${a.city} ${cleanerStr}`
+      : `${b.city} ${cleanerStr}`;
 
     document.getElementById('delta-rain').textContent = (a.rain_prob || 20) >= (b.rain_prob || 20)
-      ? `${a.city} has higher rain likelihood (${a.rain_prob || 20}%)`
-      : `${b.city} has higher rain likelihood (${b.rain_prob || 20}%)`;
+      ? `${b.city} ${drierStr}`
+      : `${a.city} ${drierStr}`;
+      ? `${a.city} has higher rain probability (${a.rain_prob || 20}%)`
+      : `${b.city} has higher rain probability (${b.rain_prob || 20}%)`;
 
     document.getElementById('comp-ai-verdict').innerHTML = `
-      <strong>Comparative Meteorological Verdict:</strong> ${a.city} registers at ${a.temp}°C (${a.condition}) versus ${b.city} at ${b.temp}°C (${b.condition}).
+      Station ${a.city} registers at ${a.temp}°C (${a.condition}) versus ${b.city} at ${b.temp}°C (${b.condition}).
       ${deltaTemp >= 0 ? `${a.city} exhibits stronger thermal accumulation` : `${b.city} presents elevated daytime temperatures`}.
-      For travel planning and outdoor activities, ensure proper hydration and check local UV indices.
+      For operational planning, ensure thermal equilibrium protocols and monitor localized UV indices.
     `;
   }
 
@@ -318,20 +323,20 @@ const App = (() => {
     if (cityTitle) cityTitle.textContent = city;
     if (!container) return;
 
-    container.innerHTML = '<div style="color:#94a3b8; padding:12px;">Loading threat monitoring models…</div>';
+    container.innerHTML = '<div style="color:#94a3b8; padding:12px; font-family:var(--font-mono); font-size:0.8rem;">Querying threat monitoring models…</div>';
 
     const resp = await API.fetchAlerts(city);
     container.innerHTML = '';
 
     if (!resp.alerts || resp.alerts.length === 0) {
       container.innerHTML = `
-        <div class="alert-item-card" style="border-color:rgba(34, 197, 94, 0.4); background:rgba(34, 197, 94, 0.08);">
-          <div class="item-head">
-            <span class="item-event-name">🟢 Green Condition — No Extreme Weather Warnings</span>
-            <span class="item-severity-badge" style="background:#22c55e; color:#fff;">NORMAL</span>
+        <div class="alert-item-card" style="border-left-color:#10b981; background:rgba(16, 185, 129, 0.06);">
+          <div class="item-head" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span class="item-event-name" style="font-weight:700; color:#10b981;">Normal Operational Status — No Hazard Warnings</span>
+            <span class="item-severity-badge" style="background:#10b981; color:#fff; font-family:var(--font-mono); font-size:0.65rem; padding:2px 6px; border-radius:4px;">GREEN</span>
           </div>
-          <p class="item-desc">Meteorological conditions in ${city} are within normal seasonal thresholds. No active cyclone, flood, or gale warnings.</p>
-          <span class="item-meta">Monitoring Frequency: Continuous Real-Time Radar</span>
+          <p class="item-desc" style="font-size:0.78rem; color:var(--text-med);">Meteorological conditions in ${city} are within normal seasonal thresholds. No active cyclone, flood, or gale warnings.</p>
+          <span class="item-meta" style="font-family:var(--font-mono); font-size:0.65rem; color:var(--text-low); margin-top:6px; display:block;">Telemetry Monitoring: Continuous Real-Time Doppler Radar</span>
         </div>
       `;
       return;
@@ -343,22 +348,22 @@ const App = (() => {
       let sevBg = '#eab308';
 
       if (sev.includes('severe') || sev.includes('extreme') || (al.event && al.event.includes('RED'))) {
-        sevClass = 'severity-red';
+        sevClass = 'red';
         sevBg = '#ef4444';
       } else if (sev.includes('moderate') || (al.event && al.event.includes('ORANGE'))) {
-        sevClass = 'severity-orange';
+        sevClass = 'orange';
         sevBg = '#f97316';
       }
 
       const card = document.createElement('div');
       card.className = `alert-item-card ${sevClass}`;
       card.innerHTML = `
-        <div class="item-head">
-          <span class="item-event-name">⚠️ ${al.event || 'Weather Advisory'}</span>
-          <span class="item-severity-badge" style="background:${sevBg}; color:#fff;">${(al.severity || 'Active').toUpperCase()}</span>
+        <div class="item-head" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="item-event-name" style="font-weight:700; color:var(--text-pure);">${al.event || 'Weather Advisory'}</span>
+          <span class="item-severity-badge" style="background:${sevBg}; color:#fff; font-family:var(--font-mono); font-size:0.65rem; padding:2px 6px; border-radius:4px;">${(al.severity || 'Active').toUpperCase()}</span>
         </div>
-        <p class="item-desc">${al.description}</p>
-        <span class="item-meta">Validity: ${al.start || 'Immediate'} to ${al.end || 'Next 24h'}</span>
+        <p class="item-desc" style="font-size:0.78rem; color:var(--text-med);">${al.description}</p>
+        <span class="item-meta" style="font-family:var(--font-mono); font-size:0.65rem; color:var(--text-low); margin-top:6px; display:block;">Validity: ${al.start || 'Immediate'} to ${al.end || 'Next 24h'}</span>
       `;
       container.appendChild(card);
     });
@@ -381,13 +386,12 @@ const App = (() => {
     WeatherCharts.renderClimate(data);
   }
 
-  // ── City Switcher & Master Loader ───────────────────────────────────
+  // ── Station Switcher & Master Loader ──────────────────────────────────
   async function switchCity(city) {
     if (!city) return;
     currentCity = city;
     showLoader(`Acquiring meteorological telemetry for ${city}…`);
 
-    // Sync input fields
     const chatLoc = document.getElementById('chat-location');
     const compA = document.getElementById('comp-city-1');
     const climCity = document.getElementById('climate-city');
@@ -398,7 +402,6 @@ const App = (() => {
     if (climCity) climCity.value = city;
     if (radarFocus) radarFocus.textContent = city;
 
-    // Update active chip pill
     document.querySelectorAll('.city-chip').forEach(c => {
       c.classList.toggle('active', c.dataset.city?.toLowerCase() === city.toLowerCase());
     });
@@ -478,7 +481,7 @@ const App = (() => {
       matches.forEach(city => {
         const item = document.createElement('div');
         item.className = 'suggestion-item';
-        item.innerHTML = `<span>📍 ${city}</span><span style="font-size:0.75rem; color:#64748b;">Select</span>`;
+        item.innerHTML = `<span>${city}</span><span style="font-size:0.7rem; color:var(--text-low); font-family:var(--font-mono);">STATION</span>`;
         item.addEventListener('click', () => {
           input.value = '';
           sugg.style.display = 'none';
@@ -512,14 +515,14 @@ const App = (() => {
           alert('Geolocation is not supported by your browser.');
           return;
         }
-        showLoader('Locating GPS coordinates…');
+        showLoader('Acquiring GPS coordinates…');
         navigator.geolocation.getCurrentPosition(
           async (pos) => {
-            switchCity('Mumbai'); // Defaults to detected Indian hub
+            switchCity('Mumbai');
           },
           (err) => {
             hideLoader();
-            alert('Location access denied. Using selected city.');
+            alert('Location access denied. Retaining selected station.');
           }
         );
       });
@@ -551,18 +554,31 @@ const App = (() => {
     setupSearch();
     ChatUI.init();
 
-    // Backend Connection Status Listener
+    if (typeof i18n !== 'undefined') {
+      i18n.applyTranslations();
+      const initialLang = i18n.getLang();
+      const headerSel = document.getElementById('header-lang-select');
+      const chatSel = document.getElementById('chat-lang');
+      if (headerSel) headerSel.value = initialLang;
+      if (chatSel) chatSel.value = initialLang;
+    }
+
+    window.addEventListener('meteor:langchange', () => {
+      if (typeof i18n !== 'undefined') {
+        i18n.applyTranslations();
+      }
+    });
+
     API.onStatusChange((online) => {
       const dot = document.querySelector('.status-dot');
       const label = document.getElementById('status-label');
       if (dot && label) {
         dot.className = online ? 'status-dot online' : 'status-dot fallback';
         dot.style.background = online ? '#10b981' : '#f59e0b';
-        label.textContent = online ? 'Live' : 'Offline';
+        label.textContent = online ? 'ONLINE' : 'OFFLINE';
       }
     });
 
-    // Navigation Tabs Event Listeners
     document.querySelectorAll('.nav-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const sec = btn.dataset.section;
@@ -570,14 +586,12 @@ const App = (() => {
       });
     });
 
-    // Quick City Chips Event Listeners
     document.querySelectorAll('.city-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         switchCity(chip.dataset.city);
       });
     });
 
-    // Unit Toggle (°C / °F)
     const unitC = document.getElementById('unit-c');
     const unitF = document.getElementById('unit-f');
     if (unitC && unitF) {
@@ -593,7 +607,6 @@ const App = (() => {
       });
     }
 
-    // Hourly Tabs
     document.getElementById('tab-hourly-temp')?.addEventListener('click', (e) => {
       document.querySelectorAll('.hourly-tab').forEach(t => t.classList.remove('active'));
       e.target.classList.add('active');
@@ -610,7 +623,6 @@ const App = (() => {
       WeatherUI.setHourlyMode('wind');
     });
 
-    // Suggestion buttons in chat sidebar — navigate to chat and ask
     document.querySelectorAll('.suggestion-list .suggestion-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const q = btn.dataset.q;
@@ -621,7 +633,6 @@ const App = (() => {
       });
     });
 
-    // Hero buttons
     document.getElementById('voice-briefing-btn')?.addEventListener('click', () => {
       WeatherUI.playVoiceBriefing();
     });
@@ -632,17 +643,12 @@ const App = (() => {
       navigate('alerts');
     });
 
-    // Comparison run button
     document.getElementById('comp-run-btn')?.addEventListener('click', runCityComparison);
-
-    // Climate Fetch button
     document.getElementById('climate-fetch-btn')?.addEventListener('click', loadClimate);
 
-    // Initial City Load
     switchCity('Mumbai');
   }
 
-  // Self-execute on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

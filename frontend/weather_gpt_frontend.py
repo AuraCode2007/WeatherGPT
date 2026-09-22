@@ -465,7 +465,7 @@ def _mock_response(question: str, city: str) -> str:
         return f"📅 For a 5-day AI forecast for {city}, please start the FastAPI backend (`uvicorn backend.main:app --reload`)."
     if "alert" in q or "warning" in q:
         return f"⚠️ No active alerts retrieved — backend offline. Start the API server for live IMD-style warnings."
-    return f"🤖 WeatherGPT backend is offline. Start it with `uvicorn backend.main:app --reload` to get AI-powered answers for {city}."
+    return f"METEOR backend is offline. Start it with `uvicorn backend.main:app --reload` to get real-time answers for {city}."
 
 
 def wind_direction_arrow(degrees: int) -> str:
@@ -591,7 +591,7 @@ def render_chat_history():
             unsafe_allow_html=True)
         else:
             st.markdown(f"""
-            <div class="chat-label-ai">🤖 WeatherGPT</div>
+            <div class="chat-label-ai">METEOR Telemetry</div>
             <div class="chat-bubble-ai">{msg["content"]}</div>""",
             unsafe_allow_html=True)
 
@@ -602,9 +602,8 @@ def render_chat_history():
 with st.sidebar:
     st.markdown("""
     <div style="text-align:center;padding:1.2rem 0 0.5rem">
-        <div style="font-size:2.2rem">🌦️</div>
-        <div style="font-size:1.1rem;font-weight:700;color:#f1f5f9">WeatherGPT</div>
-        <div style="font-size:0.72rem;color:#64748b;margin-top:2px">AI Weather Intelligence</div>
+        <div style="font-size:1.1rem;font-weight:700;color:#f1f5f9">METEOR Telemetry</div>
+        <div style="font-size:0.72rem;color:#64748b;margin-top:2px">National Operations System</div>
     </div>
     <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:0.8rem 0">
     """, unsafe_allow_html=True)
@@ -829,7 +828,7 @@ with tab_chat:
 
     if user_input:
         st.session_state.chat_history.append({"role": "user", "content": user_input})
-        with st.spinner("🤖 Thinking…"):
+        with st.spinner("Processing telemetry parameters…"):
             ai_reply = send_chat(user_input, city, lang_code, domain)
         st.session_state.chat_history.append({"role": "assistant", "content": ai_reply})
         st.rerun()
@@ -951,14 +950,14 @@ with tab_climate:
             if summary:
                 st.markdown(f"""
                 <div class="alert-box alert-moderate" style="margin-top:1rem">
-                    <div class="alert-title">🤖 AI Climate Summary</div>
+                    <div class="alert-title">50-Year ERA5 Climate Summary</div>
                     {summary}
                 </div>""", unsafe_allow_html=True)
         else:
             st.info("Backend offline. Start the API server to fetch historical climate data from Open-Meteo.")
 
     # Use-case cards
-    st.markdown('<div class="section-title">🎯 WeatherGPT Use Cases</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Operational Sectors</div>', unsafe_allow_html=True)
     use_cases = [
         ("🌾", "Agriculture", "Crop-weather advisories, irrigation scheduling, frost alerts, harvest windows."),
         ("✈️", "Aviation",    "TAF briefings, turbulence, icing, wind shear, SIGMET integration."),

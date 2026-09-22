@@ -1,6 +1,6 @@
 /**
- * chat.js — WeatherGPT AI Conversational Advisor Hub
- * Multilingual, domain-aware advisory engine with Speech Recognition & Synthesis.
+ * chat.js — Meteorological Telemetry Copilot Hub
+ * Sector-aware advisory engine with Speech Recognition & Synthesis.
  */
 
 const ChatUI = (() => {
@@ -103,9 +103,9 @@ const ChatUI = (() => {
     if (isListening) {
       speechRecognition.stop();
     } else {
-      const langCode = document.getElementById('chat-lang')?.value || 'en';
-      const langMap = { en: 'en-IN', hi: 'hi-IN', ta: 'ta-IN', te: 'te-IN', bn: 'bn-IN', mr: 'mr-IN' };
-      speechRecognition.lang = langMap[langCode] || 'en-IN';
+      const langCode = (typeof i18n !== 'undefined') ? i18n.getLang() : 'en';
+      const speechLang = (typeof i18n !== 'undefined' && i18n.languages[langCode]) ? i18n.languages[langCode].speech : 'en-IN';
+      speechRecognition.lang = speechLang;
       speechRecognition.start();
     }
   }
@@ -117,9 +117,10 @@ const ChatUI = (() => {
     const clearBtn = document.getElementById('clear-chat-btn');
     const domainSelect = document.getElementById('chat-domain');
     const langSelect = document.getElementById('chat-lang');
+    const headerLangSelect = document.getElementById('header-lang-select');
     const ttsToggle = document.getElementById('tts-toggle-btn');
 
-    if (sendBtn) sendBtn.addEventListener('click', sendMessage);
+    if (sendBtn) sendBtn.addEventListener('click', () => sendMessage());
     if (input) {
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -135,40 +136,80 @@ const ChatUI = (() => {
       domainSelect.addEventListener('change', (e) => {
         updateDomainPrompts(e.target.value);
         const activeDom = document.getElementById('chat-active-domain');
-        if (activeDom) activeDom.textContent = `Domain: ${e.target.value.split('/')[0].trim()}`;
+        if (activeDom) {
+          const domLabel = (typeof i18n !== 'undefined') ? i18n.t('chat.domain_label') : 'Domain:';
+          activeDom.textContent = `${domLabel} ${e.target.value.split('/')[0].trim()}`;
+        }
       });
     }
 
     if (langSelect) {
       langSelect.addEventListener('change', (e) => {
-        const text = e.target.options[e.target.selectedIndex].text;
-        const activeLang = document.getElementById('chat-active-lang');
-        if (activeLang) activeLang.textContent = `Language: ${text.split(' ')[1] || text}`;
+        if (typeof i18n !== 'undefined') {
+          i18n.setLanguage(e.target.value);
+        }
+      });
+    }
+
+    if (headerLangSelect) {
+      headerLangSelect.addEventListener('change', (e) => {
+        if (typeof i18n !== 'undefined') {
+          i18n.setLanguage(e.target.value);
+        }
       });
     }
 
     if (ttsToggle) {
       ttsToggle.addEventListener('click', () => {
         autoTTS = !autoTTS;
-        ttsToggle.textContent = `🔊 Voice: ${autoTTS ? 'On' : 'Off'}`;
+        const onStr = (typeof i18n !== 'undefined') ? i18n.t('chat.audio_on') : 'Audio Readout: ON';
+        const offStr = (typeof i18n !== 'undefined') ? i18n.t('chat.audio_off') : 'Audio Readout: OFF';
+        ttsToggle.textContent = autoTTS ? onStr : offStr;
         ttsToggle.style.color = autoTTS ? '#38bdf8' : '#94a3b8';
       });
     }
+
+    window.addEventListener('meteor:langchange', (evt) => {
+      const newLang = evt.detail.lang;
+      const activeLang = document.getElementById('chat-active-lang');
+      if (activeLang && typeof i18n !== 'undefined') {
+        const langName = i18n.languages[newLang]?.name || newLang;
+        const langLabel = i18n.t('chat.lang_label');
+        activeLang.textContent = `${langLabel} ${langName}`;
+      }
+      const domVal = document.getElementById('chat-domain')?.value || 'General';
+      updateDomainPrompts(domVal);
+    });
   }
 
   function updateDomainPrompts(domain) {
     const list = document.getElementById('suggestion-list');
     if (!list) return;
     list.innerHTML = '';
-    const prompts = domainPrompts[domain] || domainPrompts['General'];
-    prompts.forEach(p => {
+
+    const promptKeys = [
+      'prompt.rain_outlook',
+      'prompt.thermal_adv',
+      'prompt.aviation_vis',
+      'prompt.agri_moisture',
+      'prompt.maritime_wave',
+      'prompt.aqi_health',
+      'prompt.atmo_summary',
+      'prompt.flash_flood'
+    ];
+
+    const rawPrompts = domainPrompts[domain] || domainPrompts['General'];
+
+    promptKeys.forEach((key, idx) => {
       const btn = document.createElement('button');
       btn.className = 'suggestion-btn';
-      btn.textContent = p;
+      const promptText = (typeof i18n !== 'undefined') ? i18n.t(key) : rawPrompts[idx % rawPrompts.length];
+      const sendQuery = rawPrompts[idx % rawPrompts.length];
+      btn.textContent = promptText;
       btn.addEventListener('click', () => {
         const input = document.getElementById('chat-input');
         if (input) {
-          input.value = p;
+          input.value = sendQuery;
           sendMessage();
         }
       });
@@ -184,7 +225,9 @@ const ChatUI = (() => {
     const msg = document.createElement('div');
     msg.className = 'chat-msg user-msg';
     msg.innerHTML = `
-      <div class="msg-avatar">👤</div>
+      <div class="msg-avatar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
       <div class="msg-bubble">
         <p>${escapeHtml(text)}</p>
         <div class="msg-time">${timeStr}</div>
@@ -201,16 +244,21 @@ const ChatUI = (() => {
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const msg = document.createElement('div');
     msg.className = 'chat-msg ai-msg';
+    const copyBtnText = (typeof i18n !== 'undefined') ? i18n.t('chat.copy') : 'Copy';
+    const audioBtnText = (typeof i18n !== 'undefined') ? i18n.t('chat.audio_readout') : 'Audio Readout';
+    const reportHeader = (typeof i18n !== 'undefined') ? i18n.t('chat.welcome_header') : 'Meteorological Analysis Report';
     msg.innerHTML = `
-      <div class="msg-avatar">🤖</div>
+      <div class="msg-avatar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M19 12h3"/></svg>
+      </div>
       <div class="msg-bubble">
-        <div class="msg-header-tag">WeatherGPT AI Intel</div>
+        <div class="msg-header-tag">${reportHeader}</div>
         <div class="msg-content">${renderMarkdown(initialText)}</div>
-        <div class="chat-msg-actions">
-          <span class="msg-action-chip copy-chip">📋 Copy</span>
-          <span class="msg-action-chip speak-chip">🔊 Read Aloud</span>
+        <div class="chat-msg-actions" style="display:flex;gap:12px;margin-top:8px;font-size:0.7rem;color:var(--text-low);cursor:pointer;">
+          <span class="msg-action-chip copy-chip">${copyBtnText}</span>
+          <span class="msg-action-chip speak-chip">${audioBtnText}</span>
         </div>
-        <div class="msg-time">WeatherGPT · ${timeStr}</div>
+        <div class="msg-time">Telemetry Copilot · ${timeStr}</div>
       </div>
     `;
 
@@ -221,8 +269,8 @@ const ChatUI = (() => {
     if (copyBtn) {
       copyBtn.addEventListener('click', () => {
         navigator.clipboard.writeText(contentEl.innerText);
-        copyBtn.textContent = '✅ Copied!';
-        setTimeout(() => copyBtn.textContent = '📋 Copy', 2000);
+        copyBtn.textContent = (typeof i18n !== 'undefined') ? i18n.t('chat.copied') : 'Copied!';
+        setTimeout(() => copyBtn.textContent = (typeof i18n !== 'undefined') ? i18n.t('chat.copy') : 'Copy', 2000);
       });
     }
 
@@ -242,6 +290,9 @@ const ChatUI = (() => {
     window.speechSynthesis.cancel();
     const cleanText = text.replace(/[*#_`]/g, '');
     const utterance = new SpeechSynthesisUtterance(cleanText);
+    const langCode = (typeof i18n !== 'undefined') ? i18n.getLang() : 'en';
+    const speechLang = (typeof i18n !== 'undefined' && i18n.languages[langCode]) ? i18n.languages[langCode].speech : 'en-IN';
+    utterance.lang = speechLang;
     utterance.rate = 1.0;
     window.speechSynthesis.speak(utterance);
   }
@@ -260,7 +311,7 @@ const ChatUI = (() => {
 
     const location = document.getElementById('chat-location')?.value.trim() || 'Mumbai';
     const domain = document.getElementById('chat-domain')?.value || 'General';
-    const langCode = document.getElementById('chat-lang')?.value || 'en';
+    const langCode = (typeof i18n !== 'undefined') ? i18n.getLang() : (document.getElementById('chat-lang')?.value || 'en');
 
     const payload = {
       user_question: text,
@@ -284,7 +335,7 @@ const ChatUI = (() => {
         (err) => {
           if (aiContentEl) aiContentEl.innerHTML = `<span style="color:#ef4444;">Advisory notice: ${escapeHtml(err)}</span>`;
         },
-        (loc) => {
+        () => {
           if (typing) typing.style.display = 'none';
           if (autoTTS && accumulatedText) {
             speakText(accumulatedText);
@@ -301,11 +352,13 @@ const ChatUI = (() => {
     if (!container) return;
     container.innerHTML = `
       <div class="chat-msg ai-msg" id="welcome-msg">
-        <div class="msg-avatar">🤖</div>
+        <div class="msg-avatar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M18 12h3"/></svg>
+        </div>
         <div class="msg-bubble">
-          <div class="msg-header-tag">WeatherGPT Assistant</div>
-          <p>Chat history cleared. What weather question can I solve for you today? 🌤️</p>
-          <div class="msg-time">Just now</div>
+          <div class="msg-header-tag">Meteorological Analysis Report</div>
+          <p>Telemetry log cleared. Enter target parameter query.</p>
+          <div class="msg-time">Synchronized</div>
         </div>
       </div>
     `;

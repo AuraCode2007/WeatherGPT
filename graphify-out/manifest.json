@@ -1,0 +1,224 @@
+{
+  "backend/config.py": {
+    "mtime": 1789925645.9648664,
+    "seen": 1790014661.003082,
+    "ast_hash": "d77595dd94d003d1a53375c140e9782e",
+    "semantic_hash": ""
+  },
+  "backend/db/__init__.py": {
+    "mtime": 1789719468.7630904,
+    "seen": 1790014661.00309,
+    "ast_hash": "da9250be2924f5965c2f4af7a1108c87",
+    "semantic_hash": ""
+  },
+  "backend/db/init_db.py": {
+    "mtime": 1789719560.4183755,
+    "seen": 1790014661.003093,
+    "ast_hash": "4d4fc4b064a4c45b15cf92a07b35c231",
+    "semantic_hash": ""
+  },
+  "backend/db/models.py": {
+    "mtime": 1789720227.6820827,
+    "seen": 1790014661.0030947,
+    "ast_hash": "e081fce9f495d29b366ef3a6ef1fac41",
+    "semantic_hash": ""
+  },
+  "backend/main.py": {
+    "mtime": 1789897422.398556,
+    "seen": 1790014661.0030966,
+    "ast_hash": "6f6f07154505200894a5770f825bab2d",
+    "semantic_hash": ""
+  },
+  "backend/models.py": {
+    "mtime": 1789719803.3729672,
+    "seen": 1790014661.0030978,
+    "ast_hash": "2f370357b37689a1bfcdf1b72ef92be6",
+    "semantic_hash": ""
+  },
+  "backend/routes/__init__.py": {
+    "mtime": 1789719462.5766897,
+    "seen": 1790014661.0030994,
+    "ast_hash": "d4e3551e51db1866f8a154d793a0c74e",
+    "semantic_hash": ""
+  },
+  "backend/routes/alerts.py": {
+    "mtime": 1789720018.946325,
+    "seen": 1790014661.0031006,
+    "ast_hash": "c6e8e6c2934ba6007ad64be83c96eb11",
+    "semantic_hash": ""
+  },
+  "backend/routes/chat.py": {
+    "mtime": 1789996024.3883357,
+    "seen": 1790014661.003102,
+    "ast_hash": "daad3eaf8653cb371234b40304210cd8",
+    "semantic_hash": ""
+  },
+  "backend/routes/climate.py": {
+    "mtime": 1789996001.5491416,
+    "seen": 1790014661.0031035,
+    "ast_hash": "7142d7a85867b5e2383471dde1cff98e",
+    "semantic_hash": ""
+  },
+  "backend/routes/weather.py": {
+    "mtime": 1789836855.4860826,
+    "seen": 1790014661.003105,
+    "ast_hash": "14b3a7726cfdfd2e31842fa78d13030c",
+    "semantic_hash": ""
+  },
+  "backend/services/__init__.py": {
+    "mtime": 1789719464.643964,
+    "seen": 1790014661.0031068,
+    "ast_hash": "30300f19c0b292a3a69741b4d285bb8f",
+    "semantic_hash": ""
+  },
+  "backend/services/alert_service.py": {
+    "mtime": 1789719921.9805305,
+    "seen": 1790014661.003108,
+    "ast_hash": "e501fa4a00aa811388abef302f268bbf",
+    "semantic_hash": ""
+  },
+  "backend/services/climate_service.py": {
+    "mtime": 1789719956.9196167,
+    "seen": 1790014661.0031095,
+    "ast_hash": "5dcd6193cf60c9fc3f5b3da367f4306b",
+    "semantic_hash": ""
+  },
+  "backend/services/db_service.py": {
+    "mtime": 1789719523.9135451,
+    "seen": 1790014661.0031104,
+    "ast_hash": "c37373933c4630e601372cebc88e2561",
+    "semantic_hash": ""
+  },
+  "backend/services/llm_service.py": {
+    "mtime": 1789925660.2006333,
+    "seen": 1790014661.0031116,
+    "ast_hash": "a6caec42c5c70d806e18179220501f58",
+    "semantic_hash": ""
+  },
+  "backend/services/weather_service.py": {
+    "mtime": 1789996057.0584168,
+    "seen": 1790014661.003113,
+    "ast_hash": "6ee07f4f84b0b81e5cf355bdcad68341",
+    "semantic_hash": ""
+  },
+  "backend/utils/__init__.py": {
+    "mtime": 1789719466.7033324,
+    "seen": 1790014661.003114,
+    "ast_hash": "c0b150b92f13b44a5551663c53d4b40f",
+    "semantic_hash": ""
+  },
+  "backend/utils/cache.py": {
+    "mtime": 1789719541.8216352,
+    "seen": 1790014661.003115,
+    "ast_hash": "f838c8092a9602f8d6dcaf7ff9658894",
+    "semantic_hash": ""
+  },
+  "backend/utils/location_parser.py": {
+    "mtime": 1789720229.769972,
+    "seen": 1790014661.0031164,
+    "ast_hash": "0e4a7ecad3764a36245ffd33f3dbd3af",
+    "semantic_hash": ""
+  },
+  "frontend/js/api.js": {
+    "mtime": 1789834732.060523,
+    "seen": 1790014661.0031176,
+    "ast_hash": "d6791a0a92316a35705f2983f3e2cdf5",
+    "semantic_hash": ""
+  },
+  "frontend/js/app.js": {
+    "mtime": 1789897045.3253636,
+    "seen": 1790014661.0031185,
+    "ast_hash": "012153df558b2558b02594e4be6321d4",
+    "semantic_hash": ""
+  },
+  "frontend/js/charts.js": {
+    "mtime": 1789834746.4738946,
+    "seen": 1790014661.0031204,
+    "ast_hash": "35668e908b01353f25c7c1b41b9af495",
+    "semantic_hash": ""
+  },
+  "frontend/js/chat.js": {
+    "mtime": 1789834783.5273879,
+    "seen": 1790014661.0031216,
+    "ast_hash": "836e80fa602e2eac9d168382b6a3017d",
+    "semantic_hash": ""
+  },
+  "frontend/js/weather.js": {
+    "mtime": 1789996090.343858,
+    "seen": 1790014661.003123,
+    "ast_hash": "cd27d1f0c9284702bd07430964a5fbb2",
+    "semantic_hash": ""
+  },
+  "frontend/weather_gpt_frontend.py": {
+    "mtime": 1789720199.8413243,
+    "seen": 1790014661.003124,
+    "ast_hash": "9d306c1be7ebbacb9e407ca2ad4f1710",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1789837395.3777552,
+    "seen": 1790014661.003125,
+    "ast_hash": "dbbbc65f6ab5d33962bd61f4ab2555a7",
+    "semantic_hash": ""
+  },
+  "setup.py": {
+    "mtime": 1789925672.1695826,
+    "seen": 1790014661.0031264,
+    "ast_hash": "89ec572563c0a9eb0790b1ab33d980d2",
+    "semantic_hash": ""
+  },
+  "tests/test_chat.py": {
+    "mtime": 1789720260.979841,
+    "seen": 1790014661.0031278,
+    "ast_hash": "ee4be0a3663905de2fb47effde0ca91b",
+    "semantic_hash": ""
+  },
+  "tests/test_llm.py": {
+    "mtime": 1789996170.6382341,
+    "seen": 1790014661.003129,
+    "ast_hash": "f9bc2f20a5ec304956b551f5047475e8",
+    "semantic_hash": ""
+  },
+  "tests/test_weather.py": {
+    "mtime": 1789720271.4877088,
+    "seen": 1790014661.0031302,
+    "ast_hash": "4a09aa3230691bd67db51da1ef34e531",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1789720329.352101,
+    "seen": 1790014661.0031314,
+    "ast_hash": "a94b6b9af1b7327d7d5954b39f306cea",
+    "semantic_hash": ""
+  },
+  "backend/requirements.txt": {
+    "mtime": 1789720289.7881913,
+    "seen": 1790014661.0031323,
+    "ast_hash": "d17b07c010b51c4f88d16061e69df6af",
+    "semantic_hash": ""
+  },
+  "docker/docker-compose.yml": {
+    "mtime": 1789719580.589451,
+    "seen": 1790014661.0031338,
+    "ast_hash": "7c88a5ae8239a696d6fa133a8b5c27b0",
+    "semantic_hash": ""
+  },
+  "frontend/index.html": {
+    "mtime": 1789897480.9241784,
+    "seen": 1790014661.003135,
+    "ast_hash": "2d25a33e59bd516edf762585e68a6da6",
+    "semantic_hash": ""
+  },
+  "frontend/requirements.txt": {
+    "mtime": 1789719443.132722,
+    "seen": 1790014661.003136,
+    "ast_hash": "0fcdf7e6c0777e46fbb745b5e8f1980d",
+    "semantic_hash": ""
+  },
+  "requirements.txt": {
+    "mtime": 1789804449.9439166,
+    "seen": 1790014661.0031374,
+    "ast_hash": "c6d56d9dc700e736930e93d8aa51e73c",
+    "semantic_hash": ""
+  }
+}

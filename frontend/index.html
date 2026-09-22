@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WeatherGPT — AI Weather Intelligence</title>
-  <meta name="description" content="India's AI-powered weather intelligence platform. Real-time forecasts, radar, multi-domain AI advisory, IMD alerts, and climate analytics." />
-  <meta name="keywords" content="WeatherGPT, AI weather forecast, IMD alerts, monsoon radar, air quality AQI, climate intelligence India" />
+  <title>METEOR Telemetry — Operations Command Center</title>
+  <meta name="description" content="National Weather & Climate Telemetry Platform. Real-time atmospheric analytics, Doppler radar simulation, hazard advisories, and ERA5 reanalysis." />
+  <meta name="keywords" content="Weather Telemetry, Operations Dashboard, IMD Alerts, Doppler Radar, Air Quality Index, Climate Analytics" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -19,91 +19,115 @@
   <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=2.0" />
+  <link rel="stylesheet" href="css/styles.css?v=3.0" />
 </head>
 <body>
 
-  <!-- Background Canvas & Ambient Glow -->
+  <!-- Tactical Grid Overlay & Canvas -->
   <canvas id="weather-canvas" class="weather-canvas" aria-hidden="true"></canvas>
-  <div class="bg-ambient" aria-hidden="true">
-    <div class="orb orb-1" id="orb-1"></div>
-    <div class="orb orb-2" id="orb-2"></div>
-    <div class="orb orb-3" id="orb-3"></div>
-  </div>
+  <div class="bg-tactical-grid" aria-hidden="true"></div>
 
   <!-- ═══════════════════════════════════════════════════════
-       HEADER — clean, single-row
+       HEADER — Operations Control Bar
        ═══════════════════════════════════════════════════════ -->
   <header class="header" id="header">
     <div class="header-inner">
 
       <!-- Brand -->
       <div class="logo-wrapper">
-        <a class="logo" href="#" id="logo-link" aria-label="WeatherGPT Home">
+        <a class="logo" href="#" id="logo-link" aria-label="METEOR Operations Home">
           <div class="logo-icon-wrap">
-            <span class="logo-icon">⛅</span>
-            <span class="logo-pulse"></span>
+            <svg class="logo-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+            </svg>
           </div>
           <div class="logo-text-group">
-            <span class="logo-title">Weather<span class="logo-accent">GPT</span></span>
+            <span class="logo-title">METEOR<span class="logo-accent">.OPS</span></span>
+            <span class="logo-sub">NATIONAL TELEMETRY SYSTEM</span>
           </div>
         </a>
         <div class="status-pill" id="backend-status" title="System Connection Status">
           <span class="status-dot online"></span>
-          <span class="status-text" id="status-label">Live</span>
+          <span class="status-text" id="status-label" data-i18n="nav.status">ONLINE</span>
         </div>
       </div>
 
       <!-- Navigation -->
-      <nav class="nav" role="navigation" aria-label="Main Navigation">
+      <nav class="nav" role="navigation" aria-label="Operations Navigation">
         <button class="nav-btn active" id="nav-dashboard" data-section="dashboard" aria-current="page">
-          <span class="nav-icon">🌤️</span>
-          <span class="nav-label">Dashboard</span>
+          <svg class="nav-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span class="nav-label" data-i18n="nav.operations">Operations</span>
         </button>
         <button class="nav-btn" id="nav-radar" data-section="radar">
-          <span class="nav-icon">🛰️</span>
-          <span class="nav-label">Radar</span>
+          <svg class="nav-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/><line x1="12" y1="12" x2="18.35" y2="5.65"/></svg>
+          <span class="nav-label" data-i18n="nav.radar">Satellite Radar</span>
           <span class="nav-badge new-badge">LIVE</span>
         </button>
         <button class="nav-btn" id="nav-compare" data-section="compare">
-          <span class="nav-icon">⚔️</span>
-          <span class="nav-label">Compare</span>
+          <svg class="nav-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span class="nav-label" data-i18n="nav.compare">City Analytics</span>
         </button>
         <button class="nav-btn" id="nav-chat" data-section="chat">
-          <span class="nav-icon">🤖</span>
-          <span class="nav-label">AI Advisor</span>
-          <span class="nav-badge ai-badge">Gemini</span>
+          <svg class="nav-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          <span class="nav-label" data-i18n="nav.copilot">Telemetry Copilot</span>
+          <span class="nav-badge ai-badge">v2.4</span>
         </button>
         <button class="nav-btn" id="nav-alerts" data-section="alerts">
-          <span class="nav-icon">🚨</span>
-          <span class="nav-label">Alerts</span>
+          <svg class="nav-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span class="nav-label" data-i18n="nav.advisories">Hazard Advisories</span>
           <span class="alert-dot" id="alert-dot" style="display:none"></span>
         </button>
         <button class="nav-btn" id="nav-climate" data-section="climate">
-          <span class="nav-icon">📈</span>
-          <span class="nav-label">Climate</span>
+          <svg class="nav-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <span class="nav-label" data-i18n="nav.climate">Climate ERA5</span>
         </button>
       </nav>
 
-      <!-- Right: unit toggle + search -->
+      <!-- Right: unit toggle + language dropdown + search -->
       <div class="header-actions">
         <div class="unit-toggle" id="unit-toggle" role="radiogroup" aria-label="Temperature Unit">
           <button class="unit-btn active" id="unit-c" data-unit="C" title="Celsius">°C</button>
           <button class="unit-btn" id="unit-f" data-unit="F" title="Fahrenheit">°F</button>
         </div>
+
+        <div class="header-lang-wrap" title="Select Interface Language">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <select id="header-lang-select" class="header-lang-select" aria-label="Select Language">
+            <option value="en">🇬🇧 EN</option>
+            <option value="hi">🇮🇳 HI</option>
+            <option value="es">🇪🇸 ES</option>
+            <option value="fr">🇫🇷 FR</option>
+            <option value="de">🇩🇪 DE</option>
+            <option value="bn">🇧🇩 BN</option>
+            <option value="mr">🇮🇳 MR</option>
+            <option value="ta">🇮🇳 TA</option>
+            <option value="te">🇮🇳 TE</option>
+            <option value="gu">🇮🇳 GU</option>
+            <option value="kn">🇮🇳 KN</option>
+            <option value="ml">🇮🇳 ML</option>
+            <option value="pa">🇮🇳 PA</option>
+            <option value="ja">🇯🇵 JA</option>
+          </select>
+        </div>
+
         <div class="search-wrap" role="search">
           <div class="search-box" id="search-box">
-            <span class="search-icon">🔍</span>
+            <svg class="search-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input
               type="text"
               id="city-input"
               class="search-input"
-              placeholder="Search city…"
+              placeholder="Search station or city…"
+              data-i18n-placeholder="search.placeholder"
               autocomplete="off"
-              aria-label="Search for a city"
+              aria-label="Search for a station or city"
             />
-            <button class="voice-search-btn" id="voice-search-btn" title="Voice Search" aria-label="Search by voice">🎙️</button>
-            <button class="geo-btn" id="geo-btn" title="Use my GPS location" aria-label="Use GPS location">📍</button>
+            <button class="voice-search-btn" id="voice-search-btn" title="Voice Command" data-i18n-title="search.title" aria-label="Voice command input">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            </button>
+            <button class="geo-btn" id="geo-btn" title="Acquire GPS Position" data-i18n-title="search.gps" aria-label="Acquire GPS Position">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4" y1="12" x2="2" y2="12"/><line x1="22" y1="12" x2="18" y2="12"/><circle cx="12" cy="12" r="7"/></svg>
+            </button>
           </div>
           <div class="search-suggestions" id="search-suggestions"></div>
         </div>
@@ -111,7 +135,7 @@
 
     </div>
 
-    <!-- Quick city chips — slim, scrollable, below header inner -->
+    <!-- Quick station chips bar -->
     <div class="quick-cities-bar" id="quick-cities-bar">
       <div class="city-chips" id="quick-city-chips">
         <button class="city-chip active" data-city="Mumbai">Mumbai</button>
@@ -136,23 +160,25 @@
   <main class="main" id="main">
 
     <!-- ─────────────────────────────────────────────────────
-         SECTION 1: DASHBOARD
+         SECTION 1: OPERATIONS DASHBOARD
          ───────────────────────────────────────────────────── -->
     <section class="section active" id="section-dashboard" aria-label="Weather Dashboard">
 
-      <!-- IMD Alert Banner (hidden by default) -->
+      <!-- IMD Alert Banner -->
       <div class="alert-banner glass-card" id="alert-banner" style="display:none">
         <div class="alert-banner-left">
-          <span class="alert-pulse-icon">🚨</span>
+          <span class="alert-pulse-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
           <div class="alert-banner-content">
-            <div class="alert-banner-title" id="alert-banner-title">IMD Weather Warning Active</div>
-            <div class="alert-banner-text" id="alert-text">High alert warning issued for the current location.</div>
+            <div class="alert-banner-title" id="alert-banner-title" data-i18n="alert.banner_title">IMD Weather Warning Active</div>
+            <div class="alert-banner-text" id="alert-text" data-i18n="alert.banner_default">High alert warning issued for the target telemetry location.</div>
           </div>
         </div>
-        <button class="alert-action-btn" id="alert-view-btn">View Details →</button>
+        <button class="alert-action-btn" id="alert-view-btn" data-i18n="alert.view_telemetry">View Telemetry →</button>
       </div>
 
-      <!-- ── ZONE A: HERO ────────────────────────────────── -->
+      <!-- ── ZONE A: HERO TELEMETRY ──────────────────────── -->
       <div class="dash-hero-wrap">
 
         <!-- Left: Location + Temperature -->
@@ -166,7 +192,9 @@
               </div>
             </div>
             <div class="condition-pill" id="condition-badge">
-              <span class="condition-icon" id="condition-icon">☀️</span>
+              <span class="condition-icon" id="condition-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              </span>
               <span class="condition-label" id="condition-label">Clear Sky</span>
             </div>
           </div>
@@ -185,65 +213,79 @@
                 </div>
                 <span class="range-max" id="temp-max">31°</span>
               </div>
-              <p class="weather-summary-text" id="weather-desc">Clear sky. Ideal thermal equilibrium for current seasonal activity.</p>
+              <p class="weather-summary-text" id="weather-desc">Clear atmospheric profile. Thermal stability within target baseline parameters.</p>
             </div>
           </div>
 
           <!-- At-a-glance mini stat pills -->
           <div class="hero-stats-strip">
             <div class="stat-pill">
-              <span class="stat-pill-icon">💧</span>
-              <span class="stat-pill-label">Humidity</span>
+              <span class="stat-pill-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+              </span>
+              <span class="stat-pill-label" data-i18n="hero.humidity">Humidity</span>
               <span class="stat-pill-val" id="mini-humidity">70%</span>
             </div>
             <div class="stat-pill">
-              <span class="stat-pill-icon">💨</span>
-              <span class="stat-pill-label">Wind</span>
+              <span class="stat-pill-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>
+              </span>
+              <span class="stat-pill-label" data-i18n="hero.wind">Wind</span>
               <span class="stat-pill-val" id="mini-wind">22 km/h</span>
             </div>
             <div class="stat-pill">
-              <span class="stat-pill-icon">🔆</span>
-              <span class="stat-pill-label">UV Index</span>
+              <span class="stat-pill-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/></svg>
+              </span>
+              <span class="stat-pill-label" data-i18n="hero.uv_index">UV Index</span>
               <span class="stat-pill-val" id="mini-uv">4.5</span>
             </div>
             <div class="stat-pill">
-              <span class="stat-pill-icon">👁️</span>
-              <span class="stat-pill-label">Visibility</span>
+              <span class="stat-pill-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </span>
+              <span class="stat-pill-label" data-i18n="hero.visibility">Visibility</span>
               <span class="stat-pill-val" id="mini-visibility">10 km</span>
             </div>
             <div class="stat-pill">
-              <span class="stat-pill-icon">🌡️</span>
-              <span class="stat-pill-label">Pressure</span>
+              <span class="stat-pill-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+              </span>
+              <span class="stat-pill-label" data-i18n="hero.pressure">Pressure</span>
               <span class="stat-pill-val" id="mini-pressure">1011 hPa</span>
             </div>
           </div>
 
           <!-- Action buttons -->
           <div class="hero-actions">
-            <button class="btn-primary" id="voice-briefing-btn" title="Listen to AI Weather Briefing">
-              🔊 AI Briefing
+            <button class="btn-primary" id="voice-briefing-btn" title="Listen to Audio Telemetry Briefing">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              <span data-i18n="hero.audio_briefing">Audio Briefing</span>
             </button>
             <button class="btn-ghost" id="quick-ask-hero-btn">
-              💬 Ask WeatherGPT
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+              <span data-i18n="hero.query_system">Query System</span>
             </button>
             <span class="data-source-badge" id="data-source-badge">
-              <span class="source-dot"></span> Live OWM
+              <span class="source-dot"></span> <span data-i18n="hero.live_telemetry">Live OWM Telemetry v2.5</span>
             </span>
           </div>
         </div>
 
       </div>
 
-      <!-- ── ZONE B: DETAIL GRID (2×2) ──────────────────── -->
-      <div class="dash-section-label">Atmospheric Details</div>
+      <!-- ── ZONE B: ATMOSPHERIC TELEMETRY (2×2) ─────────── -->
+      <div class="dash-section-label" data-i18n="sec.atmospheric_telemetry">Atmospheric Telemetry</div>
       <div class="detail-grid">
 
         <!-- Card 1: Air Quality -->
         <div class="glass-card detail-card" id="card-aqi">
           <div class="detail-card-header">
             <div class="detail-card-title">
-              <span class="detail-icon">🌿</span>
-              <span>Air Quality</span>
+              <span class="detail-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+              </span>
+              <span data-i18n="card.aqi_title">Air Quality (AQI)</span>
             </div>
             <span class="detail-badge aqi-badge" id="aqi-badge">Good (AQI 25)</span>
           </div>
@@ -258,7 +300,7 @@
             <div class="p-chip"><span class="p-name">NO₂</span><span class="p-val" id="val-no2">22 ppb</span></div>
             <div class="p-chip"><span class="p-name">O₃</span><span class="p-val" id="val-o3">45 ppb</span></div>
           </div>
-          <div class="detail-footer-note" id="aqi-advice">Air quality is pristine. Ideal for all outdoor activities.</div>
+          <div class="detail-footer-note" id="aqi-advice">Air quality is pristine. Ideal for all operational activities.</div>
         </div>
 
         <!-- Card 2: Sun & Wind combined -->
@@ -268,10 +310,12 @@
             <div class="split-col">
               <div class="detail-card-header">
                 <div class="detail-card-title">
-                  <span class="detail-icon">☀️</span>
-                  <span>Sun</span>
+                  <span class="detail-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/></svg>
+                  </span>
+                  <span data-i18n="card.solar_title">Solar Cycle</span>
                 </div>
-                <span class="sun-status-tag" id="sun-status-tag">Day Cycle</span>
+                <span class="sun-status-tag" id="sun-status-tag" data-i18n="card.day_phase">Day Phase</span>
               </div>
               <div class="sun-arc-visual">
                 <svg viewBox="0 0 200 80" class="sun-arc-svg" id="sun-arc-svg">
@@ -283,16 +327,16 @@
                       <stop offset="100%" stop-color="#ef4444"/>
                     </linearGradient>
                   </defs>
-                  <circle cx="100" cy="35" r="7" fill="#fbbf24" id="sun-icon-orb" filter="drop-shadow(0 0 6px #f59e0b)"/>
+                  <circle cx="100" cy="35" r="6" fill="#fbbf24" id="sun-icon-orb" filter="drop-shadow(0 0 6px #f59e0b)"/>
                 </svg>
               </div>
               <div class="sun-times-row">
                 <div class="sun-time-item">
-                  <span class="sun-time-label">Sunrise</span>
+                  <span class="sun-time-label" data-i18n="card.sunrise">Sunrise</span>
                   <span class="sun-time-val" id="val-sunrise">06:24 AM</span>
                 </div>
                 <div class="sun-time-item" style="text-align:right">
-                  <span class="sun-time-label">Sunset</span>
+                  <span class="sun-time-label" data-i18n="card.sunset">Sunset</span>
                   <span class="sun-time-val" id="val-sunset">06:38 PM</span>
                 </div>
               </div>
@@ -304,8 +348,10 @@
             <div class="split-col">
               <div class="detail-card-header">
                 <div class="detail-card-title">
-                  <span class="detail-icon">💨</span>
-                  <span>Wind</span>
+                  <span class="detail-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>
+                  </span>
+                  <span data-i18n="card.wind_vectors">Wind Vectors</span>
                 </div>
                 <span class="wind-speed-badge" id="val-wind">22 km/h</span>
               </div>
@@ -320,9 +366,9 @@
                   </div>
                 </div>
                 <div class="wind-details-list">
-                  <div class="w-row"><span class="w-lbl">Direction</span><span class="w-val" id="val-wind-dir">W (280°)</span></div>
-                  <div class="w-row"><span class="w-lbl">Gusts</span><span class="w-val" id="val-wind-gust">30 km/h</span></div>
-                  <div class="w-row"><span class="w-lbl">Pressure</span><span class="w-val" id="val-pressure">1011 hPa</span></div>
+                  <div class="w-row"><span class="w-lbl" data-i18n="card.direction">Direction</span><span class="w-val" id="val-wind-dir">W (280°)</span></div>
+                  <div class="w-row"><span class="w-lbl" data-i18n="card.gusts">Gusts</span><span class="w-val" id="val-wind-gust">30 km/h</span></div>
+                  <div class="w-row"><span class="w-lbl" data-i18n="hero.pressure">Pressure</span><span class="w-val" id="val-pressure">1011 hPa</span></div>
                 </div>
               </div>
             </div>
@@ -333,8 +379,10 @@
         <div class="glass-card detail-card" id="card-uv">
           <div class="detail-card-header">
             <div class="detail-card-title">
-              <span class="detail-icon">🔆</span>
-              <span>UV Index</span>
+              <span class="detail-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>
+              </span>
+              <span data-i18n="card.uv_title">UV Radiation</span>
             </div>
             <span class="detail-badge uv-badge" id="val-uv-badge">Moderate (3–5)</span>
           </div>
@@ -348,7 +396,7 @@
               <div class="uv-scale-point" style="background:#a855f7;" title="Extreme (11+)"></div>
             </div>
           </div>
-          <div class="detail-footer-note" id="uv-advice">Wear SPF 30+ sunglasses during midday.</div>
+          <div class="detail-footer-note" id="uv-advice">Standard solar protection recommended during peak solar hours.</div>
         </div>
 
         <!-- Card 4: Humidity + Visibility -->
@@ -358,8 +406,10 @@
             <div class="split-col">
               <div class="detail-card-header">
                 <div class="detail-card-title">
-                  <span class="detail-icon">💧</span>
-                  <span>Humidity</span>
+                  <span class="detail-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                  </span>
+                  <span data-i18n="card.humidity_title">Relative Humidity</span>
                 </div>
                 <span class="hum-val-pill" id="val-humidity">70%</span>
               </div>
@@ -369,8 +419,8 @@
                 </div>
               </div>
               <div class="hum-sub-info">
-                <div class="hum-col"><span>Dew Point</span><strong id="val-dewpoint">24.1°C</strong></div>
-                <div class="hum-col"><span>Precip.</span><strong id="val-rain-prob">25%</strong></div>
+                <div class="hum-col"><span data-i18n="card.dew_point">Dew Point</span><strong id="val-dewpoint">24.1°C</strong></div>
+                <div class="hum-col"><span data-i18n="card.precip">Precip.</span><strong id="val-rain-prob">25%</strong></div>
               </div>
             </div>
 
@@ -380,18 +430,20 @@
             <div class="split-col">
               <div class="detail-card-header">
                 <div class="detail-card-title">
-                  <span class="detail-icon">👁️</span>
-                  <span>Visibility</span>
+                  <span class="detail-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </span>
+                  <span data-i18n="hero.visibility">Visibility</span>
                 </div>
                 <span class="vis-val-pill" id="val-visibility">10 km</span>
               </div>
               <div class="vis-details-grid">
                 <div class="vis-box">
-                  <span class="vis-label">Atmosphere</span>
+                  <span class="vis-label" data-i18n="card.atmosphere">Atmosphere</span>
                   <strong class="vis-value" id="val-vis-desc">Clear View</strong>
                 </div>
                 <div class="vis-box">
-                  <span class="vis-label">Cloud Cover</span>
+                  <span class="vis-label" data-i18n="card.cloud_cover">Cloud Cover</span>
                   <strong class="vis-value" id="val-cloud-cover">45%</strong>
                 </div>
               </div>
@@ -401,20 +453,20 @@
 
       </div>
 
-      <!-- ── ZONE C: FORECAST ────────────────────────────── -->
-      <div class="dash-section-label">Forecast</div>
+      <!-- ── ZONE C: METEOROLOGICAL FORECAST ─────────────── -->
+      <div class="dash-section-label" data-i18n="sec.meteorological_forecast">Meteorological Forecast</div>
 
       <!-- 24-Hour Chart -->
       <div class="glass-card forecast-chart-card">
         <div class="forecast-chart-header">
           <div class="forecast-title-group">
-            <h2 class="forecast-section-title">24-Hour Forecast</h2>
-            <p class="forecast-section-sub">Temperature, rain probability, and wind speed</p>
+            <h2 class="forecast-section-title" data-i18n="forecast.hourly_title">24-Hour High-Resolution Projection</h2>
+            <p class="forecast-section-sub" data-i18n="forecast.hourly_sub">Real-time hourly telemetry for temperature, precipitation probability, and velocity</p>
           </div>
           <div class="hourly-tabs">
-            <button class="hourly-tab active" id="tab-hourly-temp">Temperature</button>
-            <button class="hourly-tab" id="tab-hourly-rain">Rain %</button>
-            <button class="hourly-tab" id="tab-hourly-wind">Wind</button>
+            <button class="hourly-tab active" id="tab-hourly-temp" data-i18n="forecast.tab_temp">Temperature</button>
+            <button class="hourly-tab" id="tab-hourly-rain" data-i18n="forecast.tab_rain">Rain %</button>
+            <button class="hourly-tab" id="tab-hourly-wind" data-i18n="forecast.tab_wind">Wind</button>
           </div>
         </div>
         <div class="hourly-chart-container">
@@ -427,10 +479,10 @@
       <div class="glass-card forecast-week-card">
         <div class="forecast-chart-header">
           <div class="forecast-title-group">
-            <h2 class="forecast-section-title">7-Day Outlook</h2>
-            <p class="forecast-section-sub">Extended weather projection</p>
+            <h2 class="forecast-section-title" data-i18n="forecast.week_title">7-Day Extended Outlook</h2>
+            <p class="forecast-section-sub" data-i18n="forecast.week_sub">Statistical synoptic projection model</p>
           </div>
-          <span class="forecast-update-tag" id="forecast-updated">Updated Just Now</span>
+          <span class="forecast-update-tag" id="forecast-updated" data-i18n="forecast.updated">SYNCHRONIZED JUST NOW</span>
         </div>
         <div class="forecast-cards-grid" id="forecast-cards"></div>
       </div>
@@ -439,21 +491,21 @@
 
 
     <!-- ─────────────────────────────────────────────────────
-         SECTION 2: RADAR MAP
+         SECTION 2: SATELLITE RADAR MAP
          ───────────────────────────────────────────────────── -->
     <section class="section" id="section-radar" aria-label="Interactive Radar Map">
       <div class="radar-container glass-card">
         <div class="radar-header">
           <div class="radar-title-group">
-            <div class="radar-live-badge"><span class="radar-ping"></span> RADAR LIVE</div>
-            <h2 class="radar-title">Interactive Doppler Radar & Satellite</h2>
-            <p class="radar-desc">Simulated Doppler radar, precipitation, thermal IR, and wind streamline layers across India.</p>
+            <div class="radar-live-badge"><span class="radar-ping"></span> <span data-i18n="radar.badge">RADAR LIVE</span></div>
+            <h2 class="radar-title" data-i18n="radar.title">Doppler Radar & Satellite Telemetry</h2>
+            <p class="radar-desc" data-i18n="radar.desc">Simulated Doppler precipitation, thermal IR, and wind vector streamline fields.</p>
           </div>
           <div class="radar-layers" role="tablist">
-            <button class="radar-layer-btn active" data-layer="precip">🌧️ Rain & Radar</button>
-            <button class="radar-layer-btn" data-layer="temp">🌡️ Thermal</button>
-            <button class="radar-layer-btn" data-layer="clouds">☁️ Satellite IR</button>
-            <button class="radar-layer-btn" data-layer="wind">💨 Wind</button>
+            <button class="radar-layer-btn active" data-layer="precip" data-i18n="radar.layer_precip">Radar Precip</button>
+            <button class="radar-layer-btn" data-layer="temp" data-i18n="radar.layer_temp">Thermal IR</button>
+            <button class="radar-layer-btn" data-layer="clouds" data-i18n="radar.layer_clouds">Cloud Cover</button>
+            <button class="radar-layer-btn" data-layer="wind" data-i18n="radar.layer_wind">Wind Streamlines</button>
           </div>
         </div>
 
@@ -461,60 +513,62 @@
           <canvas id="radar-canvas" class="radar-canvas-view"></canvas>
           <div class="radar-hud-overlay">
             <div class="hud-box" id="radar-city-info">
-              <span class="hud-loc">📍 Focus: <strong id="radar-focus-city">Mumbai</strong></span>
-              <span class="hud-stats" id="radar-focus-stats">Precip: 1.2 mm/h · Cloud: 60%</span>
+              <span class="hud-loc"><span data-i18n="radar.station">Station</span>: <strong id="radar-focus-city">Mumbai</strong></span>
+              <span class="hud-stats" id="radar-focus-stats"><span data-i18n="radar.precip_label">Precip</span>: 1.2 mm/h · <span data-i18n="radar.cloud_density">Cloud Density</span>: 60%</span>
             </div>
             <div class="hud-legend" id="radar-legend">
-              <span class="leg-label">Intensity:</span>
+              <span class="leg-label" data-i18n="radar.echo_dbz">Echo dBZ:</span>
               <div class="leg-gradient-bar"></div>
               <div class="leg-markers">
-                <span>Light</span><span>Moderate</span><span>Heavy</span><span>Extreme</span>
+                <span data-i18n="radar.light">Light</span><span data-i18n="radar.mod_radar">Moderate</span><span data-i18n="radar.heavy">Heavy</span><span data-i18n="radar.severe">Severe</span>
               </div>
             </div>
           </div>
         </div>
 
         <div class="radar-player-controls">
-          <button class="player-btn" id="radar-play-btn" title="Play/Pause">▶ Play</button>
+          <button class="player-btn" id="radar-play-btn" title="Play/Pause Frame Loop" data-i18n="radar.play">▶ Play</button>
           <div class="radar-timeline-track">
             <input type="range" id="radar-slider" min="0" max="100" value="70" class="radar-range-slider" />
             <div class="timeline-labels">
               <span>-3h</span><span>-2h</span><span>-1h</span>
-              <span class="timeline-now">NOW</span>
-              <span>+1h (AI)</span>
+              <span class="timeline-now" data-i18n="radar.now">NOW</span>
+              <span data-i18n="radar.projection">+1h (Projection)</span>
             </div>
           </div>
-          <span class="radar-time-stamp" id="radar-time-stamp">Live Doppler Frame</span>
+          <span class="radar-time-stamp" id="radar-time-stamp" data-i18n="radar.timestamp">Live Doppler Frame</span>
         </div>
       </div>
     </section>
 
 
     <!-- ─────────────────────────────────────────────────────
-         SECTION 3: COMPARE
+         SECTION 3: CITY ANALYTICS (COMPARE)
          ───────────────────────────────────────────────────── -->
     <section class="section" id="section-compare" aria-label="Dual-City Comparison">
       <div class="compare-container">
 
         <div class="compare-header glass-card">
           <div class="compare-title-wrap">
-            <span class="comp-icon">⚔️</span>
+            <span class="comp-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </span>
             <div>
-              <h2 class="compare-title">City Weather Comparison</h2>
-              <p class="compare-subtitle">Compare live meteorological metrics and AI travel verdicts side-by-side.</p>
+              <h2 class="compare-title" data-i18n="comp.title">Comparative City Analytics</h2>
+              <p class="compare-subtitle" data-i18n="comp.subtitle">Side-by-side meteorological metrics and regional risk synthesis.</p>
             </div>
           </div>
           <div class="compare-inputs-row">
             <div class="comp-input-group">
-              <label for="comp-city-1">City A</label>
-              <input type="text" id="comp-city-1" class="form-input" value="Mumbai" placeholder="First City..." />
+              <label for="comp-city-1" data-i18n="comp.station_a">Station A</label>
+              <input type="text" id="comp-city-1" class="form-input" value="Mumbai" placeholder="First station..." data-i18n-placeholder="comp.placeholder_a" />
             </div>
             <div class="comp-vs-badge">VS</div>
             <div class="comp-input-group">
-              <label for="comp-city-2">City B</label>
-              <input type="text" id="comp-city-2" class="form-input" value="Delhi" placeholder="Second City..." />
+              <label for="comp-city-2" data-i18n="comp.station_b">Station B</label>
+              <input type="text" id="comp-city-2" class="form-input" value="Delhi" placeholder="Second station..." data-i18n-placeholder="comp.placeholder_b" />
             </div>
-            <button class="comp-run-btn" id="comp-run-btn">⚡ Compare</button>
+            <button class="comp-run-btn" id="comp-run-btn" data-i18n="comp.execute">Execute Analysis</button>
           </div>
         </div>
 
@@ -522,48 +576,48 @@
 
           <div class="glass-card city-compare-card" id="card-comp-a">
             <div class="comp-city-head">
-              <span class="comp-tag">CITY A</span>
+              <span class="comp-tag" data-i18n="comp.tag_a">STATION A</span>
               <h3 class="comp-city-name" id="comp-name-a">Mumbai</h3>
-              <div class="comp-weather-badge" id="comp-cond-a">⛅ 29°C · Partly Cloudy</div>
+              <div class="comp-weather-badge" id="comp-cond-a">29°C · Partly Cloudy</div>
             </div>
             <div class="comp-metrics-list">
-              <div class="c-metric"><span class="c-name">Feels Like</span><span class="c-val" id="comp-feels-a">32°C</span></div>
-              <div class="c-metric"><span class="c-name">Humidity</span><span class="c-val" id="comp-hum-a">76%</span></div>
-              <div class="c-metric"><span class="c-name">Air Quality</span><span class="c-val aqi-val" id="comp-aqi-a">78 (Moderate)</span></div>
-              <div class="c-metric"><span class="c-name">Wind</span><span class="c-val" id="comp-wind-a">14 km/h</span></div>
-              <div class="c-metric"><span class="c-name">Rain Chance</span><span class="c-val" id="comp-rain-a">20%</span></div>
-              <div class="c-metric"><span class="c-name">UV Index</span><span class="c-val" id="comp-uv-a">4.8</span></div>
+              <div class="c-metric"><span class="c-name" data-i18n="comp.feels_like">Feels Like</span><span class="c-val" id="comp-feels-a">32°C</span></div>
+              <div class="c-metric"><span class="c-name" data-i18n="comp.humidity">Humidity</span><span class="c-val" id="comp-hum-a">76%</span></div>
+              <div class="c-metric"><span class="c-name" data-i18n="comp.aqi">Air Quality</span><span class="c-val aqi-val" id="comp-aqi-a">78 (Moderate)</span></div>
+              <div class="c-metric"><span class="c-name" data-i18n="comp.wind">Wind Velocity</span><span class="c-val" id="comp-wind-a">14 km/h</span></div>
+              <div class="c-metric"><span class="c-name" data-i18n="comp.rain_prob">Precip Probability</span><span class="c-val" id="comp-rain-a">20%</span></div>
+              <div class="c-metric"><span class="c-name" data-i18n="comp.uv">UV Index</span><span class="c-val" id="comp-uv-a">4.8</span></div>
             </div>
           </div>
 
           <div class="glass-card comp-delta-card" id="comp-delta-card">
-            <h4 class="delta-title">Key Differences</h4>
+            <h4 class="delta-title" data-i18n="comp.metric_variance">Metric Variance</h4>
             <div class="delta-items" id="comp-delta-list">
-              <div class="delta-row"><span class="d-lbl">Temperature</span><strong id="delta-temp">+3.5°C warmer in Mumbai</strong></div>
-              <div class="delta-row"><span class="d-lbl">Air Quality</span><strong id="delta-aqi">Mumbai has cleaner air</strong></div>
-              <div class="delta-row"><span class="d-lbl">Rain Risk</span><strong id="delta-rain">Delhi is drier today</strong></div>
+              <div class="delta-row"><span class="d-lbl" data-i18n="forecast.tab_temp">Temperature</span><strong id="delta-temp">+3.5°C warmer in Mumbai</strong></div>
+              <div class="delta-row"><span class="d-lbl" data-i18n="comp.aqi">Air Quality</span><strong id="delta-aqi">Mumbai has cleaner AQI</strong></div>
+              <div class="delta-row"><span class="d-lbl" data-i18n="card.precip">Precip Risk</span><strong id="delta-rain">Delhi is drier today</strong></div>
             </div>
             <div class="ai-verdict-box">
-              <div class="verdict-head">🤖 WeatherGPT Verdict</div>
-              <p class="verdict-body" id="comp-ai-verdict">
-                Mumbai offers coastal humid weather with cleaner air, while Delhi experiences higher continental warmth. For outdoor activities, Mumbai is more favorable today.
+              <div class="verdict-head" data-i18n="comp.synthesis_title">Comparative Synthesis & Regional Risk Assessment</div>
+              <p class="verdict-body" id="comp-ai-verdict" data-i18n="comp.synthesis_default">
+                Mumbai displays coastal maritime humidity with lower particulate concentrations. Delhi exhibits higher dry thermal radiation with elevated AQI levels.
               </p>
             </div>
           </div>
 
           <div class="glass-card city-compare-card" id="card-comp-b">
             <div class="comp-city-head">
-              <span class="comp-tag">CITY B</span>
+              <span class="comp-tag" data-i18n="comp.tag_b">STATION B</span>
               <h3 class="comp-city-name" id="comp-name-b">Delhi</h3>
-              <div class="comp-weather-badge" id="comp-cond-b">☀️ 33°C · Clear & Hazy</div>
+              <div class="comp-weather-badge" id="comp-cond-b">33°C · Clear & Hazy</div>
             </div>
             <div class="comp-metrics-list">
-              <div class="c-metric"><span class="c-name">Feels Like</span><span class="c-val" id="comp-feels-b">35°C</span></div>
-              <div class="c-metric"><span class="c-name">Humidity</span><span class="c-val" id="comp-hum-b">42%</span></div>
-              <div class="c-metric"><span class="c-name">Air Quality</span><span class="c-val aqi-val poor" id="comp-aqi-b">145 (Poor)</span></div>
-              <div class="c-metric"><span class="c-name">Wind</span><span class="c-val" id="comp-wind-b">8 km/h</span></div>
-              <div class="c-metric"><span class="c-name">Rain Chance</span><span class="c-val" id="comp-rain-b">5%</span></div>
-              <div class="c-metric"><span class="c-name">UV Index</span><span class="c-val" id="comp-uv-b">7.2</span></div>
+              <div class="c-metric"><span class="c-name" data-i18n="comp.feels_like">Feels Like</span><span class="c-val" id="comp-feels-b">35°C</span></div>
+              <div class="c-metric"><span class="c-name" data-i18n="comp.humidity">Humidity</span><span class="c-val" id="comp-hum-b">42%</span></div>
+              <div class="c-metric"><span class="c-name" data-i18n="comp.aqi">Air Quality</span><span class="c-val aqi-val poor" id="comp-aqi-b">145 (Poor)</span></div>
+              <div class="c-metric"><span class="c-name" data-i18n="comp.wind">Wind Velocity</span><span class="c-val" id="comp-wind-b">8 km/h</span></div>
+              <div class="c-metric"><span class="c-name" data-i18n="comp.rain_prob">Precip Probability</span><span class="c-val" id="comp-rain-b">5%</span></div>
+              <div class="c-metric"><span class="c-name" data-i18n="comp.uv">UV Index</span><span class="c-val" id="comp-uv-b">7.2</span></div>
             </div>
           </div>
 
@@ -573,92 +627,100 @@
 
 
     <!-- ─────────────────────────────────────────────────────
-         SECTION 4: AI ADVISOR
+         SECTION 4: TELEMETRY COPILOT (CHAT)
          ───────────────────────────────────────────────────── -->
-    <section class="section" id="section-chat" aria-label="AI Weather Chat">
+    <section class="section" id="section-chat" aria-label="Telemetry Copilot">
       <div class="chat-layout">
 
         <aside class="chat-sidebar glass-card">
           <div class="sidebar-header">
-            <span class="sidebar-icon">⚙️</span>
-            <h2 class="sidebar-title">Advisory Config</h2>
+            <svg class="sidebar-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <h2 class="sidebar-title" data-i18n="chat.sidebar_title">Sector Parameters</h2>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="chat-location">Location</label>
+            <label class="form-label" for="chat-location" data-i18n="chat.target_station">Target Station</label>
             <input type="text" id="chat-location" class="form-input" placeholder="e.g. Mumbai" value="Mumbai" />
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="chat-domain">Sector Domain</label>
+            <label class="form-label" for="chat-domain" data-i18n="chat.op_sector">Operational Sector</label>
             <select id="chat-domain" class="form-select">
-              <option value="General">General Public</option>
-              <option value="Agriculture / Farming">Agriculture & Farming</option>
-              <option value="Aviation">Aviation</option>
-              <option value="Flood &amp; Cyclone Warning">Flood & Cyclone</option>
-              <option value="Smart City / Urban">Smart City & Urban</option>
-              <option value="Marine &amp; Fisheries">Marine & Fisheries</option>
-              <option value="Climate Research">Climate Research</option>
+              <option value="General" data-i18n="chat.sector_general">General Public & Urban</option>
+              <option value="Agriculture / Farming" data-i18n="chat.sector_agri">Agriculture & Irrigation</option>
+              <option value="Aviation" data-i18n="chat.sector_aviation">Aviation Operations (SIGMET)</option>
+              <option value="Flood &amp; Cyclone Warning" data-i18n="chat.sector_flood">Flood & Early Warning</option>
+              <option value="Smart City / Urban" data-i18n="chat.sector_smart">Smart Infrastructure & Drainage</option>
+              <option value="Marine &amp; Fisheries" data-i18n="chat.sector_marine">Maritime & Fisheries</option>
+              <option value="Climate Research" data-i18n="chat.sector_climate">Climate Research & ERA5</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="chat-lang">Language</label>
+            <label class="form-label" for="chat-lang" data-i18n="chat.lang_interface">Language Interface</label>
             <select id="chat-lang" class="form-select">
               <option value="en">English</option>
               <option value="hi">हिंदी (Hindi)</option>
+              <option value="es">Español (Spanish)</option>
+              <option value="fr">Français (French)</option>
+              <option value="de">Deutsch (German)</option>
+              <option value="bn">বাংলা (Bengali)</option>
+              <option value="mr">मराठी (Marathi)</option>
               <option value="ta">தமிழ் (Tamil)</option>
               <option value="te">తెలుగు (Telugu)</option>
-              <option value="bn">বাংলা (Bengali)</option>
-              <option value="kn">ಕನ್ನಡ (Kannada)</option>
-              <option value="mr">मराठी (Marathi)</option>
               <option value="gu">ગુજરાતી (Gujarati)</option>
-              <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+              <option value="kn">ಕನ್ನಡ (Kannada)</option>
               <option value="ml">മലയാളം (Malayalam)</option>
+              <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+              <option value="ja">日本語 (Japanese)</option>
             </select>
           </div>
 
           <div class="sidebar-divider"></div>
 
-          <!-- AI Quick prompts — moved here from dashboard -->
-          <p class="sidebar-hint">Quick Questions</p>
+          <!-- Technical Queries sidebar -->
+          <p class="sidebar-hint" data-i18n="chat.analytical_queries">Analytical Queries</p>
           <div class="suggestion-list" id="suggestion-list">
-            <button class="suggestion-btn" data-q="Should I carry an umbrella today?">☂️ Umbrella needed today?</button>
-            <button class="suggestion-btn" data-q="What is the recommended clothing advisory for today?">👕 Clothing advisory?</button>
-            <button class="suggestion-btn" data-q="Is it safe for driving and aviation given current visibility?">🚗 Safe to drive & fly?</button>
-            <button class="suggestion-btn" data-q="What are the farming and irrigation recommendations for today?">🌾 Farmer irrigation advice?</button>
-            <button class="suggestion-btn" data-q="Are there any coastal rough sea warnings for fishermen?">⚓ Marine advisories?</button>
-            <button class="suggestion-btn" data-q="What health precautions are advised given today's AQI?">😷 AQI health tips?</button>
-            <button class="suggestion-btn" data-q="What is the current atmospheric summary and 24h outlook?">🌤️ Atmospheric summary?</button>
-            <button class="suggestion-btn" data-q="Are there any flash flood or heavy rainfall warnings this week?">🌊 Flash flood risks?</button>
+            <button class="suggestion-btn" data-q="Should I carry an umbrella today?" data-i18n="prompt.rain_outlook">Rain & Precipitation Outlook</button>
+            <button class="suggestion-btn" data-q="What is the recommended clothing advisory for today?" data-i18n="prompt.thermal_adv">Thermal Equilibrium Advisory</button>
+            <button class="suggestion-btn" data-q="Is it safe for driving and aviation given current visibility?" data-i18n="prompt.aviation_vis">Aviation & Highway Visibility</button>
+            <button class="suggestion-btn" data-q="What are the farming and irrigation recommendations for today?" data-i18n="prompt.agri_moisture">Agricultural Moisture Management</button>
+            <button class="suggestion-btn" data-q="Are there any coastal rough sea warnings for fishermen?" data-i18n="prompt.maritime_wave">Maritime Wave & Sea Advisories</button>
+            <button class="suggestion-btn" data-q="What health precautions are advised given today's AQI?" data-i18n="prompt.aqi_health">Air Quality Respiratory Risk</button>
+            <button class="suggestion-btn" data-q="What is the current atmospheric summary and 24h outlook?" data-i18n="prompt.atmo_summary">Atmospheric Telemetry Summary</button>
+            <button class="suggestion-btn" data-q="Are there any flash flood or heavy rainfall warnings this week?" data-i18n="prompt.flash_flood">Flash Flood Probability Index</button>
           </div>
 
-          <button class="clear-chat-btn" id="clear-chat-btn">🗑️ Clear Chat</button>
+          <button class="clear-chat-btn" id="clear-chat-btn" data-i18n="chat.clear_log">Clear Log</button>
         </aside>
 
         <div class="chat-area glass-card">
           <div class="chat-top-bar">
             <div class="chat-active-info">
-              <div class="bot-status-avatar">🤖</div>
+              <div class="bot-status-avatar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+              </div>
               <div>
-                <div class="bot-name">WeatherGPT — Gemini Pro</div>
+                <div class="bot-name" data-i18n="chat.bot_title">Meteorological Telemetry Copilot (v2.4 Engine)</div>
                 <div class="bot-meta"><span id="chat-active-domain">Domain: General</span> · <span id="chat-active-lang">English</span></div>
               </div>
             </div>
             <div class="chat-top-actions">
-              <button class="chat-action-btn" id="tts-toggle-btn" title="Toggle Voice Readout">🔊 Voice: On</button>
+              <button class="chat-action-btn" id="tts-toggle-btn" title="Toggle Audio Synthesis" data-i18n="chat.audio_on">Audio Readout: ON</button>
             </div>
           </div>
 
           <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
             <div class="chat-msg ai-msg" id="welcome-msg">
-              <div class="msg-avatar">🤖</div>
+              <div class="msg-avatar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M19 12h3"/></svg>
+              </div>
               <div class="msg-bubble">
-                <div class="msg-header-tag">WeatherGPT Assistant</div>
-                <p>Hello! I'm <strong>WeatherGPT</strong>, your AI meteorological advisor powered by Google Gemini and live OpenWeatherMap data.</p>
-                <p>I can answer hyper-local forecasts, extreme weather questions, and give tailored insights for Agriculture, Aviation, Maritime, Urban Planning, and Public Safety — in 10 Indian languages.</p>
-                <p>Type a question or pick a quick prompt from the sidebar. 🌤️</p>
-                <div class="msg-time">Just now</div>
+                <div class="msg-header-tag" data-i18n="chat.welcome_header">Meteorological Analysis Report</div>
+                <p data-i18n="chat.welcome_p1">Welcome to <strong>METEOR Copilot</strong>. System initialized with live OpenWeatherMap API telemetry and multi-sector decision engines.</p>
+                <p data-i18n="chat.welcome_p2">Query real-time atmospheric conditions, microclimate projections, or sector-specific operational advisories (Agriculture, Aviation, Maritime, Urban Drainage) across 14 regional languages.</p>
+                <p data-i18n="chat.welcome_p3">Select an analytical query from the parameter sidebar or enter a target prompt below.</p>
+                <div class="msg-time" data-i18n="chat.initialized">Initialized</div>
               </div>
             </div>
           </div>
@@ -666,20 +728,25 @@
           <div class="chat-input-area">
             <div class="typing-indicator" id="typing-indicator" style="display:none">
               <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-              <span class="typing-text">WeatherGPT is analyzing atmospheric models…</span>
+              <span class="typing-text" data-i18n="chat.typing">Processing meteorological model parameters…</span>
             </div>
             <div class="chat-input-row">
-              <button class="mic-btn" id="chat-mic-btn" title="Speak your question" aria-label="Voice input">🎙️</button>
+              <button class="mic-btn" id="chat-mic-btn" title="Speak query" aria-label="Voice input">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              </button>
               <textarea
                 id="chat-input"
                 class="chat-input"
-                placeholder="Ask anything — 'Will it rain tomorrow in Mumbai during my commute?'"
+                placeholder="Enter query — e.g. 'Assess precipitation and wind vector risk for Mumbai during morning operations'"
+                data-i18n-placeholder="chat.input_placeholder"
                 rows="1"
-                aria-label="Ask a weather question"
+                aria-label="Enter meteorological query"
               ></textarea>
-              <button class="send-btn" id="chat-send-btn" aria-label="Send message">
-                <span>Send</span>
-                <span class="send-icon">🚀</span>
+              <button class="send-btn" id="chat-send-btn" aria-label="Execute Query">
+                <span data-i18n="chat.execute">Execute</span>
+                <span class="send-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </span>
               </button>
             </div>
           </div>
@@ -690,23 +757,23 @@
 
 
     <!-- ─────────────────────────────────────────────────────
-         SECTION 5: ALERTS
+         SECTION 5: HAZARD ADVISORIES (ALERTS)
          ───────────────────────────────────────────────────── -->
-    <section class="section" id="section-alerts" aria-label="Extreme Weather Alerts">
+    <section class="section" id="section-alerts" aria-label="Severe Hazard Advisories">
       <div class="alerts-container">
 
         <div class="glass-card alerts-hub-head">
           <div class="alerts-head-content">
-            <div class="head-badge">🚨 DISASTER EARLY WARNING CENTER</div>
-            <h2 class="alerts-page-title">IMD Severe Weather Advisories</h2>
-            <p class="alerts-page-desc">Real-time threat monitoring for Cyclones, Cloudbursts, Flash Floods, Heat Waves, and Gale Winds across Indian districts.</p>
+            <div class="head-badge" data-i18n="alerts.control_badge">HAZARD & DISASTER EARLY WARNING CONTROL</div>
+            <h2 class="alerts-page-title" data-i18n="alerts.title">IMD Severe Weather Advisories</h2>
+            <p class="alerts-page-desc" data-i18n="alerts.desc">Real-time threat monitoring for Cyclones, Cloudbursts, Flash Floods, Heat Waves, and Gale Wind fields across Indian districts.</p>
           </div>
           <div class="alerts-filter-tabs">
-            <button class="alert-filter-btn active" data-filter="all">All</button>
-            <button class="alert-filter-btn filter-red" data-filter="red">🔴 Red</button>
-            <button class="alert-filter-btn filter-orange" data-filter="orange">🟠 Orange</button>
-            <button class="alert-filter-btn filter-yellow" data-filter="yellow">🟡 Yellow</button>
-            <button class="alert-filter-btn filter-green" data-filter="green">🟢 Normal</button>
+            <button class="alert-filter-btn active" data-filter="all" data-i18n="alerts.filter_all">All</button>
+            <button class="alert-filter-btn filter-red" data-filter="red" data-i18n="alerts.filter_red">Red Alert</button>
+            <button class="alert-filter-btn filter-orange" data-filter="orange" data-i18n="alerts.filter_orange">Orange Warning</button>
+            <button class="alert-filter-btn filter-yellow" data-filter="yellow" data-i18n="alerts.filter_yellow">Yellow Watch</button>
+            <button class="alert-filter-btn filter-green" data-filter="green" data-i18n="alerts.filter_green">Normal</button>
           </div>
         </div>
 
@@ -714,8 +781,8 @@
 
           <div class="glass-card alerts-feed-card">
             <div class="feed-header">
-              <h3 class="feed-title">Active Alerts — <span id="alerts-city-display">Mumbai</span></h3>
-              <button class="refresh-alerts-btn" id="refresh-alerts-btn">🔄 Refresh</button>
+              <h3 class="feed-title"><span data-i18n="alerts.active_district">Active District Warnings —</span> <span id="alerts-city-display">Mumbai</span></h3>
+              <button class="refresh-alerts-btn" id="refresh-alerts-btn" data-i18n="alerts.refresh">Refresh Telemetry</button>
             </div>
             <div class="alerts-list" id="alerts-list"></div>
           </div>
@@ -723,30 +790,36 @@
           <div class="alerts-sidebar-wrap">
 
             <div class="glass-card protocol-card">
-              <h3 class="protocol-title">🛡️ Emergency Safety Protocols</h3>
+              <h3 class="protocol-title" data-i18n="alerts.protocols_title">Emergency Response Protocols</h3>
               <div class="protocol-list">
                 <div class="protocol-item">
-                  <span class="p-icon">🌊</span>
-                  <div><strong>Urban Flooding:</strong> Avoid waterlogged underpasses, disconnect basement power, store 48h emergency water.</div>
+                  <span class="p-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                  </span>
+                  <div data-i18n="alerts.proto_inundation"><strong>Urban Inundation:</strong> Isolate low-lying electrical substations; activate municipal drainage pumping stations.</div>
                 </div>
                 <div class="protocol-item">
-                  <span class="p-icon">⚡</span>
-                  <div><strong>Lightning:</strong> Seek shelter in enclosed buildings. Do not stand under tall trees.</div>
+                  <span class="p-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  </span>
+                  <div data-i18n="alerts.proto_storms"><strong>Electrical Storms:</strong> Disconnect elevated conductive structures; enforce indoor perimeter positioning.</div>
                 </div>
                 <div class="protocol-item">
-                  <span class="p-icon">🔥</span>
-                  <div><strong>Heatwave:</strong> Drink ORS/electrolytes, avoid direct sunlight between 12:00 PM–4:00 PM.</div>
+                  <span class="p-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+                  </span>
+                  <div data-i18n="alerts.proto_heat"><strong>Extreme Heat Radiation:</strong> Hydration protocol; suspend high-intensity outdoor workforce operations 12:00–16:00.</div>
                 </div>
               </div>
             </div>
 
             <div class="glass-card helplines-card">
-              <h3 class="helpline-title">📞 Emergency Helplines</h3>
+              <h3 class="helpline-title" data-i18n="alerts.helplines_title">Emergency Control Lines</h3>
               <div class="helplines-grid">
-                <div class="helpline-badge"><span>National Emergency</span><strong>112</strong></div>
-                <div class="helpline-badge"><span>NDRF Helpline</span><strong>1078</strong></div>
-                <div class="helpline-badge"><span>State Disaster</span><strong>1070</strong></div>
-                <div class="helpline-badge"><span>Ambulance</span><strong>108</strong></div>
+                <div class="helpline-badge"><span data-i18n="alerts.help_national">National Emergency</span><strong>112</strong></div>
+                <div class="helpline-badge"><span data-i18n="alerts.help_ndrf">NDRF Control</span><strong>1078</strong></div>
+                <div class="helpline-badge"><span data-i18n="alerts.help_state">State Disaster</span><strong>1070</strong></div>
+                <div class="helpline-badge"><span data-i18n="alerts.help_ambulance">Ambulance</span><strong>108</strong></div>
               </div>
             </div>
 
@@ -758,24 +831,24 @@
 
 
     <!-- ─────────────────────────────────────────────────────
-         SECTION 6: CLIMATE
+         SECTION 6: CLIMATE ERA5 ANALYTICS
          ───────────────────────────────────────────────────── -->
     <section class="section" id="section-climate" aria-label="Climate Trends">
       <div class="climate-container">
 
         <div class="glass-card climate-header-card">
           <div class="climate-head-info">
-            <span class="climate-badge">📊 LONG-TERM CLIMATE INTELLIGENCE</span>
-            <h2 class="climate-page-title">Historical Climate Analytics</h2>
-            <p class="climate-page-desc">Explore 40+ years of ERA5 reanalysis records (1980–2026) with AI anomaly detection.</p>
+            <span class="climate-badge" data-i18n="climate.badge">LONG-TERM ERA5 REANALYSIS</span>
+            <h2 class="climate-page-title" data-i18n="climate.title">Historical Climate Trends & Anomalies</h2>
+            <p class="climate-page-desc" data-i18n="climate.desc">Access 40+ years of ECMWF ERA5 meteorological reanalysis records (1980–2026).</p>
           </div>
           <div class="climate-form-row">
             <div class="c-input-wrap">
-              <label for="climate-city">City</label>
+              <label for="climate-city" data-i18n="climate.station">Station</label>
               <input type="text" id="climate-city" class="form-input" value="Mumbai" placeholder="City..." />
             </div>
             <div class="c-input-wrap">
-              <label for="climate-month">Month</label>
+              <label for="climate-month" data-i18n="climate.target_month">Target Month</label>
               <select id="climate-month" class="form-select">
                 <option value="1">January</option>
                 <option value="2">February</option>
@@ -791,7 +864,7 @@
                 <option value="12">December</option>
               </select>
             </div>
-            <button class="climate-fetch-btn" id="climate-fetch-btn">⚡ Analyze</button>
+            <button class="climate-fetch-btn" id="climate-fetch-btn" data-i18n="climate.run">Run ERA5 Analysis</button>
           </div>
         </div>
 
@@ -799,26 +872,32 @@
 
           <div class="climate-stat-cards">
             <div class="glass-card c-stat-box">
-              <div class="c-stat-icon">🌡️</div>
+              <div class="c-stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+              </div>
               <div class="c-stat-val" id="clim-val-temp">28.4 °C</div>
-              <div class="c-stat-label">Avg Temperature</div>
+              <div class="c-stat-label" data-i18n="climate.mean_temp">Mean Temperature</div>
             </div>
             <div class="glass-card c-stat-box">
-              <div class="c-stat-icon">💧</div>
+              <div class="c-stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+              </div>
               <div class="c-stat-val" id="clim-val-hum">82.1 %</div>
-              <div class="c-stat-label">Avg Humidity</div>
+              <div class="c-stat-label" data-i18n="climate.mean_hum">Mean Relative Humidity</div>
             </div>
             <div class="glass-card c-stat-box">
-              <div class="c-stat-icon">🌧️</div>
+              <div class="c-stat-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 1 4 15.25"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="8" y1="20" x2="8.01" y2="20"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="12" y1="22" x2="12.01" y2="22"/></svg>
+              </div>
               <div class="c-stat-val" id="clim-val-rain">342 mm</div>
-              <div class="c-stat-label">Monthly Rainfall</div>
+              <div class="c-stat-label" data-i18n="climate.acc_rain">Accumulated Rainfall</div>
             </div>
           </div>
 
           <div class="glass-card climate-chart-card">
             <div class="c-chart-head">
-              <h3 class="c-chart-title">50-Year Temperature & Rainfall Variance (1980–2026)</h3>
-              <span class="c-model-tag">ERA5 High-Res Grid</span>
+              <h3 class="c-chart-title" data-i18n="climate.chart_title">50-Year Temperature & Precipitation Anomaly Variance (1980–2026)</h3>
+              <span class="c-model-tag" data-i18n="climate.mesh_tag">ERA5 High-Res Mesh</span>
             </div>
             <div class="climate-canvas-wrap">
               <canvas id="climate-chart" height="120"></canvas>
@@ -827,11 +906,13 @@
 
           <div class="glass-card climate-ai-summary-card">
             <div class="ai-summary-head">
-              <span class="ai-icon">🤖</span>
-              <h3 class="ai-summary-title">Gemini AI Climate Summary</h3>
+              <span class="ai-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 12h3"/><path d="M18 12h3"/><path d="M12 3v3"/><path d="M12 18v3"/></svg>
+              </span>
+              <h3 class="ai-summary-title" data-i18n="climate.ai_summary_title">50-Year ERA5 Climate Trend Analysis</h3>
             </div>
-            <div class="ai-summary-body" id="clim-ai-summary">
-              Analyzing historical climate data for Mumbai in September...
+            <div class="ai-summary-body" id="clim-ai-summary" data-i18n="climate.ai_evaluating">
+              Evaluating ERA5 historical reanalysis parameters for target month...
             </div>
           </div>
 
@@ -848,15 +929,16 @@
   <div class="loading-overlay" id="loading-overlay" style="display:none">
     <div class="loader-card glass-card">
       <div class="loader-spinner"></div>
-      <div class="loader-text" id="loader-text">Fetching live meteorological data…</div>
+      <div class="loader-text" id="loader-text" data-i18n="loader.text">Acquiring live telemetry feed…</div>
     </div>
   </div>
 
   <!-- JavaScript Modules -->
-  <script src="js/api.js?v=2.0"></script>
-  <script src="js/charts.js?v=2.0"></script>
-  <script src="js/weather.js?v=2.0"></script>
-  <script src="js/chat.js?v=2.0"></script>
-  <script src="js/app.js?v=2.0"></script>
+  <script src="js/i18n.js?v=3.0"></script>
+  <script src="js/api.js?v=3.0"></script>
+  <script src="js/charts.js?v=3.0"></script>
+  <script src="js/weather.js?v=3.0"></script>
+  <script src="js/chat.js?v=3.0"></script>
+  <script src="js/app.js?v=3.0"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 /**
- * weather.js — Weather Dashboard Display & Environmental Intelligence
- * Populates all dashboard metrics, environmental gauges, and manages unit conversions.
+ * weather.js — Environmental & Meteorological Telemetry Engine
+ * Manages operations dashboard data, atmospheric metrics, and forecast timelines.
  */
 
 const WeatherUI = (() => {
@@ -8,31 +8,12 @@ const WeatherUI = (() => {
   let currentWeatherData = null;
   let activeHourlyMode = 'temp';
 
-  // Condition -> High fidelity emoji icons
-  const conditionIcons = {
-    Clear: '☀️',
-    Clouds: '⛅',
-    Rain: '🌧️',
-    Drizzle: '🌦️',
-    Thunderstorm: '⛈️',
-    Snow: '❄️',
-    Mist: '🌫️',
-    Smoke: '🌫️',
-    Haze: '🌫️',
-    Dust: '💨',
-    Fog: '🌫️',
-    Sand: '💨',
-    Ash: '🌋',
-    Squall: '💨',
-    Tornado: '🌪️',
-  };
-
   const aqiLevels = {
-    1: { label: 'Good (AQI 25)', cls: '', advice: 'Air quality is pristine. Ideal for all outdoor exercises.' },
-    2: { label: 'Fair (AQI 65)', cls: '', advice: 'Air quality is acceptable. Very minor risk for sensitive groups.' },
-    3: { label: 'Moderate (AQI 115)', cls: 'mod', advice: 'Sensitive individuals should limit prolonged outdoor exertion.' },
-    4: { label: 'Poor (AQI 175)', cls: 'poor', advice: 'Unhealthy air. Wear N95 masks when stepping outdoors.' },
-    5: { label: 'Very Poor (AQI 240)', cls: 'verypoor', advice: 'Hazardous air quality. Avoid all outdoor physical activity.' },
+    1: { label: 'Good (AQI 25)', cls: '', advice: 'Air quality is pristine. Ideal for all operational activities.' },
+    2: { label: 'Fair (AQI 65)', cls: '', advice: 'Air quality is acceptable. Minor particulate density.' },
+    3: { label: 'Moderate (AQI 115)', cls: 'mod', advice: 'Elevated particulate concentration. Sensitive groups take precaution.' },
+    4: { label: 'Poor (AQI 175)', cls: 'poor', advice: 'High atmospheric pollution. Wear N95 protection outdoors.' },
+    5: { label: 'Very Poor (AQI 240)', cls: 'verypoor', advice: 'Hazardous air quality. Restrict outdoor workforce operations.' },
   };
 
   function setUnit(unit) {
@@ -50,18 +31,6 @@ const WeatherUI = (() => {
     return `${Math.round(celsius * 10) / 10}°`;
   }
 
-  function getForecastIcon(desc) {
-    const d = (desc || '').toLowerCase();
-    if (d.includes('thunder')) return '⛈️';
-    if (d.includes('heavy rain') || d.includes('shower')) return '🌧️';
-    if (d.includes('rain') || d.includes('drizzle')) return '🌦️';
-    if (d.includes('snow')) return '❄️';
-    if (d.includes('fog') || d.includes('mist') || d.includes('haze')) return '🌫️';
-    if (d.includes('cloud') || d.includes('overcast')) return '☁️';
-    if (d.includes('partly')) return '⛅';
-    return '☀️';
-  }
-
   function parseForecastLine(line) {
     const parts = line.split(':');
     const day = parts[0]?.trim() || 'Day';
@@ -71,7 +40,6 @@ const WeatherUI = (() => {
     const desc = segments[1]?.trim() || 'Clear Sky';
     const hum = segments[2]?.trim() || 'Humidity 60%';
 
-    // Extract numeric temp (supports negative values)
     const numMatch = tempStr.match(/(-?\d+)/);
     const numTemp = numMatch ? parseFloat(numMatch[1]) : 28;
 
@@ -84,8 +52,6 @@ const WeatherUI = (() => {
   function render(data) {
     if (!data) return;
     currentWeatherData = data;
-
-    const icon = conditionIcons[data.condition] || '🌡️';
 
     // 1. City & Header Metadata
     const cityEl = document.getElementById('city-name');
@@ -101,14 +67,17 @@ const WeatherUI = (() => {
     const dateEl = document.getElementById('city-date');
     if (dateEl) {
       const now = new Date();
+      const langCode = (typeof i18n !== 'undefined') ? i18n.getLang() : 'en';
+      const localeMap = { en: 'en-IN', hi: 'hi-IN', es: 'es-ES', fr: 'fr-FR', de: 'de-DE', ja: 'ja-JP', ta: 'ta-IN', mr: 'mr-IN', bn: 'bn-IN' };
       const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
-      dateEl.textContent = `${now.toLocaleDateString('en-IN', options)} IST`;
+      dateEl.textContent = `${now.toLocaleDateString(localeMap[langCode] || 'en-IN', options)}`;
     }
 
-    const condIcon = document.getElementById('condition-icon');
     const condLabel = document.getElementById('condition-label');
-    if (condIcon) condIcon.textContent = icon;
-    if (condLabel) condLabel.textContent = data.description || data.condition;
+    if (condLabel) {
+      const rawCond = data.description || data.condition || 'Clear Sky';
+      condLabel.textContent = (typeof i18n !== 'undefined') ? i18n.translateCondition(rawCond) : rawCond;
+    }
 
     // 2. Primary Hero Temperature
     const tempMain = document.getElementById('temp-main');
@@ -118,7 +87,8 @@ const WeatherUI = (() => {
 
     const tempFeels = document.getElementById('temp-feels');
     if (tempFeels) {
-      tempFeels.innerHTML = `Feels like <strong>${formatTemp(data.feels_like)}${isFahrenheit ? 'F' : 'C'}</strong>`;
+      const feelsLabel = (typeof i18n !== 'undefined') ? i18n.t('hero.feels_like') : 'Feels like';
+      tempFeels.innerHTML = `${feelsLabel} <strong>${formatTemp(data.feels_like)}${isFahrenheit ? 'F' : 'C'}</strong>`;
     }
 
     const tempMinEl = document.getElementById('temp-min');
@@ -128,19 +98,29 @@ const WeatherUI = (() => {
 
     const descEl = document.getElementById('weather-desc');
     if (descEl) {
-      descEl.textContent = `${icon} ${data.description || data.condition}. Ideal thermal equilibrium for current seasonal activity.`;
+      const translatedCond = (typeof i18n !== 'undefined') ? i18n.translateCondition(data.description || data.condition) : (data.description || data.condition);
+      const summaryTail = (typeof i18n !== 'undefined') ? i18n.t('hero.summary_default') : 'Atmospheric profile within target baseline parameters.';
+      descEl.textContent = `${translatedCond}. ${summaryTail}`;
     }
 
     // 3. Environmental Metric 1: AQI & Pollutants
     const aqiVal = data.aqi || 2;
-    const aqiMeta = aqiLevels[aqiVal] || aqiLevels[2];
+    const aqiKeys = { 1: 'good', 2: 'fair', 3: 'moderate', 4: 'poor', 5: 'very_poor' };
+    const aqiKey = aqiKeys[aqiVal] || 'fair';
+
     const aqiBadge = document.getElementById('aqi-badge');
     const aqiFill = document.getElementById('aqi-gauge-fill');
     const aqiAdvice = document.getElementById('aqi-advice');
 
-    if (aqiBadge) aqiBadge.textContent = aqiMeta.label;
+    if (aqiBadge) {
+      aqiBadge.textContent = (typeof i18n !== 'undefined') ? i18n.t(`aqi.${aqiKey}`) : aqiLevels[aqiVal]?.label;
+      if (aqiVal >= 4) aqiBadge.classList.add('poor');
+      else aqiBadge.classList.remove('poor');
+    }
     if (aqiFill) aqiFill.style.width = `${Math.min(100, (aqiVal / 5) * 100)}%`;
-    if (aqiAdvice) aqiAdvice.textContent = aqiMeta.advice;
+    if (aqiAdvice) {
+      aqiAdvice.textContent = (typeof i18n !== 'undefined') ? i18n.t(`aqi.advice_${aqiKey}`) : aqiLevels[aqiVal]?.advice;
+    }
 
     const pol = data.pollutants || { pm25: 35, pm10: 60, no2: 20, o3: 40 };
     if (document.getElementById('val-pm25')) document.getElementById('val-pm25').textContent = `${pol.pm25 || 35} µg`;
@@ -156,7 +136,6 @@ const WeatherUI = (() => {
     const windSpeed = isFahrenheit ? Math.round(data.wind_speed * 0.621371) : data.wind_speed;
     const windUnit = isFahrenheit ? 'mph' : 'km/h';
     if (document.getElementById('val-wind')) document.getElementById('val-wind').textContent = `${windSpeed} ${windUnit}`;
-    // Mini stat pill
     if (document.getElementById('mini-wind')) document.getElementById('mini-wind').textContent = `${windSpeed} ${windUnit}`;
 
     const compassArrow = document.getElementById('compass-arrow-wrap');
@@ -186,11 +165,19 @@ const WeatherUI = (() => {
     if (document.getElementById('val-uv')) document.getElementById('val-uv').textContent = uv.toFixed(1);
     if (document.getElementById('mini-uv')) document.getElementById('mini-uv').textContent = uv.toFixed(1);
     const uvBadge = document.getElementById('val-uv-badge');
+    const uvAdvice = document.getElementById('uv-advice');
     if (uvBadge) {
-      if (uv < 3) uvBadge.textContent = 'Low (0-2)';
-      else if (uv < 6) uvBadge.textContent = 'Moderate (3-5)';
-      else if (uv < 8) uvBadge.textContent = 'High (6-7)';
-      else uvBadge.textContent = 'Very High (8+)';
+      let uvKey = 'moderate';
+      if (uv < 3) uvKey = 'low';
+      else if (uv < 6) uvKey = 'moderate';
+      else if (uv < 8) uvKey = 'high';
+      else if (uv < 11) uvKey = 'very_high';
+      else uvKey = 'extreme';
+
+      uvBadge.textContent = (typeof i18n !== 'undefined') ? i18n.t(`uv.${uvKey}`) : 'Moderate (3-5)';
+      if (uvAdvice) {
+        uvAdvice.textContent = (typeof i18n !== 'undefined') ? i18n.t(`uv.advice_${uvKey}`) : 'Standard solar protection recommended.';
+      }
     }
 
     // 7. Metric 5: Moisture & Humidity
@@ -209,6 +196,12 @@ const WeatherUI = (() => {
     if (document.getElementById('mini-visibility')) document.getElementById('mini-visibility').textContent = `${visDist} ${visUnit}`;
     if (document.getElementById('val-cloud-cover')) document.getElementById('val-cloud-cover').textContent = `${data.cloud_cover || 45}%`;
 
+    const visDescEl = document.getElementById('val-vis-desc');
+    if (visDescEl) {
+      const visKey = data.visibility > 8 ? 'vis.clear' : (data.visibility > 4 ? 'vis.hazy' : 'vis.poor');
+      visDescEl.textContent = (typeof i18n !== 'undefined') ? i18n.t(visKey) : 'Clear View';
+    }
+
     // 9. Alert Banner
     const alertBanner = document.getElementById('alert-banner');
     const alertText = document.getElementById('alert-text');
@@ -219,7 +212,7 @@ const WeatherUI = (() => {
       if (alertBanner) alertBanner.style.display = 'none';
     }
 
-    // 10. Hourly Forecast Timeline Chips & Chart
+    // 10. Hourly Forecast Timeline & Chart
     renderHourlyTimeline(data);
     WeatherCharts.renderHourly(data, activeHourlyMode, isFahrenheit);
 
@@ -232,7 +225,9 @@ const WeatherUI = (() => {
     if (!scroller) return;
     scroller.innerHTML = '';
 
-    const hours = ['Now', '+3h', '+6h', '+9h', '+12h', '+15h', '+18h', '+21h'];
+    const nowStr = (typeof i18n !== 'undefined') ? i18n.t('radar.now') : 'Now';
+    const rainStr = (typeof i18n !== 'undefined') ? i18n.t('forecast.rain_label') : 'Rain';
+    const hours = [nowStr, '+3h', '+6h', '+9h', '+12h', '+15h', '+18h', '+21h'];
     const baseTemp = data.temp || 28;
     const tempOffsets = [0, 1.2, 2.4, 0.8, -1.5, -3.0, -2.8, -1.0];
     const rainProbs = [data.rain_prob || 20, 35, 50, 20, 10, 5, 15, 20];
@@ -240,12 +235,11 @@ const WeatherUI = (() => {
     hours.forEach((h, idx) => {
       const t = baseTemp + tempOffsets[idx];
       const chip = document.createElement('div');
-      chip.className = `hourly-chip ${idx === 0 ? 'now' : ''}`;
+      chip.className = `hourly-item ${idx === 0 ? 'now' : ''}`;
       chip.innerHTML = `
         <span class="h-time">${h}</span>
-        <span class="h-icon">${idx % 2 === 0 ? conditionIcons[data.condition] || '⛅' : '🌦️'}</span>
         <span class="h-temp">${formatTemp(t)}</span>
-        <span class="h-rain">💧 ${rainProbs[idx]}%</span>
+        <span class="h-rain">${rainStr} ${rainProbs[idx]}%</span>
       `;
       scroller.appendChild(chip);
     });
@@ -257,27 +251,22 @@ const WeatherUI = (() => {
     grid.innerHTML = '';
 
     const rawList = data.forecast || [];
-    rawList.forEach((line, idx) => {
+    rawList.forEach((line) => {
       const { day, numTemp, desc, hum } = parseForecastLine(line);
-      const icon = getForecastIcon(desc);
       const minT = numTemp - 3;
       const maxT = numTemp + 4;
+      const translatedDesc = (typeof i18n !== 'undefined') ? i18n.translateCondition(desc) : desc;
 
       const card = document.createElement('div');
-      card.className = 'forecast-card-item glass-card';
+      card.className = 'forecast-day-card glass-card';
       card.innerHTML = `
-        <div class="f-day-title">${day}</div>
-        <div class="f-date-sub">IMD Forecast</div>
-        <div class="f-icon-wrap">${icon}</div>
-        <div class="f-temp-row">
-          <span class="f-temp-max">${formatTemp(maxT)}</span>
-          <span class="f-temp-min">/ ${formatTemp(minT)}</span>
+        <div class="f-day-name">${day}</div>
+        <span class="f-date-str">${translatedDesc}</span>
+        <div class="f-temps">
+          <span class="f-high">${formatTemp(maxT)}</span>
+          <span class="f-low">${formatTemp(minT)}</span>
         </div>
-        <div class="f-desc-chip">${desc}</div>
-        <div class="f-extra-details">
-          <span>💧 ${hum.replace('Humidity', '')}</span>
-          <span>🌬️ Moderate</span>
-        </div>
+        <div style="font-size:0.68rem;color:var(--text-low);margin-top:6px;">${hum}</div>
       `;
       grid.appendChild(card);
     });
@@ -292,16 +281,25 @@ const WeatherUI = (() => {
 
   function playVoiceBriefing() {
     if (!currentWeatherData || !('speechSynthesis' in window)) {
-      alert('Speech synthesis is not available in your browser.');
+      alert('Audio synthesis is not supported on this device.');
       return;
     }
     const d = currentWeatherData;
-    const text = `Good day! Weather briefing for ${d.city}. Currently ${d.temp} degrees Celsius with ${d.description}. Humidity is at ${d.humidity} percent with wind speed of ${d.wind_speed} kilometers per hour. Air Quality Index is ${d.aqi || 2}. Have a safe day!`;
+    const langCode = (typeof i18n !== 'undefined') ? i18n.getLang() : 'en';
+    const text = `Meteorological briefing for ${d.city}. Current temperature is ${d.temp} degrees Celsius with ${d.description}. Relative humidity is at ${d.humidity} percent.`;
     const utterance = new SpeechSynthesisUtterance(text);
+    const langMap = { en: 'en-IN', hi: 'hi-IN', es: 'es-ES', fr: 'fr-FR', de: 'de-DE', ja: 'ja-JP', ta: 'ta-IN', mr: 'mr-IN' };
+    utterance.lang = langMap[langCode] || 'en-IN';
     utterance.rate = 1.0;
-    utterance.pitch = 1.0;
     window.speechSynthesis.speak(utterance);
   }
+
+  // Listen for language change events
+  window.addEventListener('meteor:langchange', () => {
+    if (currentWeatherData) {
+      render(currentWeatherData);
+    }
+  });
 
   return {
     render,

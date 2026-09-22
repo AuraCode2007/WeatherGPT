@@ -68,6 +68,10 @@ _DOMAIN_CONTEXT: dict[str, str] = {
 _LANG_INSTRUCTION: dict[str, str] = {
     "en": "Respond in English.",
     "hi": "हिंदी में उत्तर दें।",
+    "es": "Responde en español.",
+    "fr": "Répondez en français.",
+    "de": "Antworte auf Deutsch.",
+    "ja": "日本語で回答してください。",
     "ta": "தமிழில் பதிலளிக்கவும்.",
     "te": "తెలుగులో సమాధానం ఇవ్వండి.",
     "bn": "বাংলায় उत्तर दिन।",

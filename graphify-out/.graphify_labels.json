@@ -1,0 +1,23 @@
+{
+  "0": "chat.py",
+  "1": "llm_service.py",
+  "2": "db/models.py",
+  "3": "fetch_weather",
+  "4": "🌦️ WeatherGPT — AI-Powered Weather Intelligence Platform",
+  "5": "alert_service.py",
+  "6": "weather_gpt_frontend.py",
+  "7": "package.json",
+  "8": "setup.py",
+  "9": "test_chat.py",
+  "10": "config.py",
+  "11": "location_parser.py",
+  "12": "api.js",
+  "13": "app.js",
+  "14": "charts.js",
+  "15": "chat.js",
+  "16": "weather.js",
+  "17": "db/__init__.py",
+  "18": "routes/__init__.py",
+  "19": "services/__init__.py",
+  "20": "utils/__init__.py"
+}

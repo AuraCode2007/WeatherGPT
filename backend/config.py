@@ -8,7 +8,16 @@ OPENWEATHERMAP_API_KEY: str = os.getenv("OPENWEATHERMAP_API_KEY", "")
 GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
 
 # ── Database & Cache ──────────────────────────────────────────────────────────
-DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/weather_gpt")
+_db_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "database"))
+os.makedirs(_db_dir, exist_ok=True)
+_default_sqlite_path = os.path.join(_db_dir, "weather_gpt.db")
+
+_db_env: str = os.getenv("DATABASE_URL", "")
+if _db_env:
+    DATABASE_URL: str = _db_env
+else:
+    DATABASE_URL: str = f"sqlite:///{_default_sqlite_path}"
+
 REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 # ── App ───────────────────────────────────────────────────────────────────────

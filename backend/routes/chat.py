@@ -1,8 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
+from sqlalchemy.orm import Session
 from backend.models import ChatRequest, ChatResponse
 from backend.services.llm_service import generate_weather_response, stream_weather_response
 from backend.services.weather_service import fetch_weather
+from backend.services.db_service import save_chat_log, get_recent_chats
+from backend.db.init_db import get_db
 from backend.utils.cache import get_cached, set_cached
 import json
 
@@ -10,14 +13,11 @@ router = APIRouter(prefix="/chat", tags=["Chat — Conversational AI"])
 
 
 @router.post("/", response_model=ChatResponse, summary="AI-powered weather Q&A")
-async def chat(request: ChatRequest):
+async def chat(request: ChatRequest, db: Session = Depends(get_db)):
     """
     Accept a natural-language weather question with optional language and
     domain context, fetch live weather data, and return an LLM-generated
     advisory response in the requested language.
-
-    Domains: General | Agriculture | Aviation | Flood & Cyclone Warning |
-             Smart City | Marine & Fisheries | Climate Research
     """
     cache_key = f"chat:{request.location.lower().strip()}:{request.language_code}:{request.domain}:{request.user_question.strip()}"
     cached = get_cached(cache_key)
@@ -45,6 +45,17 @@ async def chat(request: ChatRequest):
             language_code=request.language_code,
             domain=request.domain,
         )
+        try:
+            save_chat_log(
+                db,
+                location=request.location,
+                question=request.user_question,
+                response=response_text,
+                language_code=request.language_code,
+                domain=request.domain
+            )
+        except Exception as db_err:
+            print(f"[DB] Save chat log error: {db_err}")
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"LLM error: {e}")
 
@@ -57,6 +68,25 @@ async def chat(request: ChatRequest):
         domain=request.domain,
         source="live",
     )
+
+
+@router.get("/history", summary="Get recent chat interactions from database")
+async def get_chat_history(limit: int = 20, db: Session = Depends(get_db)):
+    """Fetch recent natural-language chat interactions stored in database."""
+    logs = get_recent_chats(db, limit=limit)
+    return [
+        {
+            "id": log.id,
+            "location": log.location,
+            "language_code": log.language_code,
+            "domain": log.domain,
+            "question": log.question,
+            "response": log.response,
+            "created_at": log.created_at.isoformat() if log.created_at else None
+        }
+        for log in logs
+    ]
+
 
 
 @router.post("/stream", summary="Streaming AI weather Q&A (SSE)")

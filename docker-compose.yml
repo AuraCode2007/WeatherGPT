@@ -1,0 +1,24 @@
+services:
+  # ── PostgreSQL Database Container ──────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: weather_gpt_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: weather_gpt
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  # ── Redis Cache Container ──────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: weather_gpt_redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  pg_data:

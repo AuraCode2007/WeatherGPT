@@ -34,3 +34,8 @@ docker/data/
 .pytest_cache/
 .qodo/
 
+# Database files
+database/*.db
+*.db
+
+

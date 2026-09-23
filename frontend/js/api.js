@@ -23,7 +23,7 @@ const API = (() => {
     }
   }
 
-  /** Generic fetch helper with timeout and fallback handling */
+  /** Generic fetch helper with timeout and fallback handling **/
   async function request(method, path, body = null, timeoutMs = 7000) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);

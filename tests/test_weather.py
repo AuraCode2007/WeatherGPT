@@ -47,8 +47,9 @@ def _aqi_mock():
 
 @patch("backend.services.weather_service.requests.get")
 def test_fetch_weather_returns_all_fields(mock_get):
+    # Non-preset city triggers OWM_GEO first
     mock_get.side_effect = [_geo_mock(), _current_mock(), _forecast_mock(), _aqi_mock()]
-    data = fetch_weather("Delhi")
+    data = fetch_weather("CustomCityTest")
     assert data["city"] == "Delhi"
     assert data["temp"] == 36.0
     assert data["humidity"] == 55
@@ -59,12 +60,15 @@ def test_fetch_weather_returns_all_fields(mock_get):
 
 @patch("backend.services.weather_service.requests.get")
 def test_fetch_weather_raises_for_unknown_city(mock_get):
+    # For unknown unresolvable city, fetch_weather degrades gracefully with fallback weather
     m = MagicMock()
     m.status_code = 200
-    m.json.return_value = []          # empty geo response = city not found
+    m.json.return_value = []          # empty geo response = city unresolvable via API
     mock_get.return_value = m
-    with pytest.raises(ValueError, match="not found"):
-        fetch_weather("UnknownCityXYZ")
+    data = fetch_weather("UnknownCityXYZ")
+    assert data["city"] == "Unknowncityxyz"
+    assert "temp" in data
+
 
 
 @patch("backend.services.weather_service.requests.get")

@@ -18,6 +18,8 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 import os
 
+from backend.db.init_db import init_db
+
 app = FastAPI(
     title="WeatherGPT API",
     description=(
@@ -28,6 +30,10 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+@app.on_event("startup")
+def on_startup():
+    init_db()
 
 # ── CORS ─────────────────────────────────────────────────────────────────────
 app.add_middleware(

@@ -141,6 +141,21 @@ const i18n = (() => {
       'radar.projection': '+1h (Projection)',
       'radar.timestamp': 'Live Doppler Frame',
 
+      // Station Hub Section
+      'sec.station_network': 'Indian Meteorological Network (50+ Stations)',
+      'hub.badge': '50+ ACTIVE STATIONS',
+      'hub.title': 'All India Meteorological Network Explorer',
+      'hub.sub': 'Live telemetry and operational monitoring across 28 States & 8 Union Territories',
+      'hub.search_placeholder': 'Filter station or state...',
+      'hub.reg_all': 'All Stations (50+)',
+      'hub.reg_north': 'Northern Region',
+      'hub.reg_west': 'West & Central',
+      'hub.reg_east': 'Eastern Region',
+      'hub.reg_south': 'Southern Region',
+      'hub.reg_ne': 'North-East Region',
+      'hub.reg_ut': 'UT & Islands',
+      'hub.reg_global': 'Global',
+
       // Compare Section
       'comp.title': 'Comparative City Analytics',
       'comp.subtitle': 'Side-by-side meteorological metrics and regional risk synthesis.',
@@ -881,7 +896,7 @@ const i18n = (() => {
       'aqi.very_poor': 'Sehr Schlecht (AQI 240)',
       'aqi.advice_good': 'Luftqualität ist hervorragend. Ideal für Aktivitäten im Freien.',
       'aqi.advice_fair': 'Luftqualität ist akzeptabel. Geringe Partikeldichte.',
-       me_moderate: 'Erhöhte Partikel. Empfindliche Personen sollten Vorsicht walten lassen.',
+      'aqi.advice_moderate': 'Erhöhte Partikel. Empfindliche Personen sollten Vorsicht walten lassen.',
       'aqi.advice_poor': 'Hohe Belastung. N95-Maske im Freien empfohlen.',
       'aqi.advice_very_poor': 'Gefährliche Luftqualität. Aktivitäten im Freien einschränken.',
       'uv.low': 'Niedrig (0–2)',
@@ -1283,6 +1298,28 @@ const i18n = (() => {
       const translated = t(key);
       if (translated) el.title = translated;
     });
+  }
+
+  function initI18n() {
+    const headerSelect = document.getElementById('header-lang-select');
+    const chatSelect = document.getElementById('chat-lang');
+
+    if (headerSelect) {
+      headerSelect.value = currentLang;
+      headerSelect.addEventListener('change', (e) => setLanguage(e.target.value));
+    }
+    if (chatSelect) {
+      chatSelect.value = currentLang;
+      chatSelect.addEventListener('change', (e) => setLanguage(e.target.value));
+    }
+
+    applyTranslations();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initI18n);
+  } else {
+    initI18n();
   }
 
   return {

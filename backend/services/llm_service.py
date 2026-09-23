@@ -177,17 +177,26 @@ def generate_weather_response(
     Build a rich, domain-aware prompt and return Gemini's natural-language answer.
     Automatically responds in the requested Indian language with fallback safety.
     """
-    prompt = _build_prompt(question, location, weather_data, language_code, domain)
-    client = _client or _get_client()
+    try:
+        prompt = _build_prompt(question, location, weather_data, language_code, domain)
+        client = _client
+        if not client:
+            try:
+                client = _get_client()
+            except Exception:
+                client = None
 
-    for model_name in _get_candidate_models():
-        try:
-            chat = client.chats.create(model=model_name)
-            response = chat.send_message(prompt)
-            if response and response.text:
-                return response.text.strip()
-        except Exception as e:
-            print(f"[Gemini Model {model_name} Error] {e}")
+        if client:
+            for model_name in _get_candidate_models():
+                try:
+                    chat = client.chats.create(model=model_name)
+                    response = chat.send_message(prompt)
+                    if response and response.text:
+                        return response.text.strip()
+                except Exception as e:
+                    print(f"[Gemini Model {model_name} Error] {e}")
+    except Exception as outer_e:
+        print(f"[LLM Service Error] {outer_e}")
 
     return _generate_fallback_advisory(question, location, weather_data, domain)
 
@@ -203,21 +212,30 @@ def stream_weather_response(
     Generator that yields text chunks from Gemini streaming API.
     Suitable for Server-Sent Events (SSE) with streaming fallback.
     """
-    prompt = _build_prompt(question, location, weather_data, language_code, domain)
-    client = _client or _get_client()
+    try:
+        prompt = _build_prompt(question, location, weather_data, language_code, domain)
+        client = _client
+        if not client:
+            try:
+                client = _get_client()
+            except Exception:
+                client = None
 
-    for model_name in _get_candidate_models():
-        try:
-            chat = client.chats.create(model=model_name)
-            yielded_any = False
-            for chunk in chat.send_message_stream(prompt):
-                if chunk.text:
-                    yielded_any = True
-                    yield chunk.text
-            if yielded_any:
-                return
-        except Exception as e:
-            print(f"[Gemini Stream Model {model_name} Error] {e}")
+        if client:
+            for model_name in _get_candidate_models():
+                try:
+                    chat = client.chats.create(model=model_name)
+                    yielded_any = False
+                    for chunk in chat.send_message_stream(prompt):
+                        if chunk.text:
+                            yielded_any = True
+                            yield chunk.text
+                    if yielded_any:
+                        return
+                except Exception as e:
+                    print(f"[Gemini Stream Model {model_name} Error] {e}")
+    except Exception:
+        pass
 
     fallback_text = _generate_fallback_advisory(question, location, weather_data, domain)
     for word in fallback_text.split(" "):

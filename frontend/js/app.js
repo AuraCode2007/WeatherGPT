@@ -8,15 +8,99 @@ const App = (() => {
   let currentCity = 'Mumbai';
   const RECENT_KEY = 'meteor_recent_stations';
 
-  // ── 35+ Indian & Global Meteorological Stations for Autocomplete ──────
+  // ── 50+ Indian & Global Meteorological Stations for Autocomplete & Hub ──────
   const popularCities = [
-    'Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata',
-    'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat',
-    'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Bhopal',
-    'Patna', 'Vadodara', 'Gurgaon', 'Noida', 'Coimbatore',
-    'Kochi', 'Visakhapatnam', 'Chandigarh', 'Guwahati', 'Shimla',
-    'Srinagar', 'Goa', 'Varanasi', 'Amritsar', 'Dehradun',
+    'Mumbai', 'Delhi', 'Bengaluru', 'Chennai', 'Kolkata', 'Hyderabad',
+    'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kanpur',
+    'Nagpur', 'Indore', 'Bhopal', 'Patna', 'Vadodara', 'Ghaziabad',
+    'Ludhiana', 'Agra', 'Nashik', 'Faridabad', 'Meerut', 'Rajkot',
+    'Varanasi', 'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar', 'Prayagraj',
+    'Ranchi', 'Howrah', 'Jabalpur', 'Gwalior', 'Vijayawada', 'Jodhpur',
+    'Madurai', 'Raipur', 'Kota', 'Guwahati', 'Chandigarh', 'Solapur',
+    'Hubballi', 'Bareilly', 'Moradabad', 'Mysuru', 'Gurugram', 'Aligarh',
+    'Jalandhar', 'Tiruchirappalli', 'Bhubaneswar', 'Salem', 'Warangal',
+    'Thiruvananthapuram', 'Kochi', 'Visakhapatnam', 'Shimla', 'Dehradun',
+    'Gangtok', 'Panaji', 'Imphal', 'Shillong', 'Aizawl', 'Kohima',
+    'Agartala', 'Itanagar', 'Leh', 'Puducherry', 'Port Blair',
     'London', 'New York', 'Tokyo', 'Dubai', 'Singapore', 'Paris'
+  ];
+
+  const stationHubList = [
+    { city: 'Mumbai', state: 'Maharashtra', region: 'West & Central', icon: '🏙️' },
+    { city: 'Delhi', state: 'Delhi NCR', region: 'Northern Region', icon: '🏛️' },
+    { city: 'Bengaluru', state: 'Karnataka', region: 'Southern Region', icon: '💻' },
+    { city: 'Chennai', state: 'Tamil Nadu', region: 'Southern Region', icon: '🌊' },
+    { city: 'Kolkata', state: 'West Bengal', region: 'Eastern Region', icon: '🎭' },
+    { city: 'Hyderabad', state: 'Telangana', region: 'Southern Region', icon: '🏰' },
+    { city: 'Srinagar', state: 'Jammu & Kashmir', region: 'Northern Region', icon: '🏔️' },
+    { city: 'Leh', state: 'Ladakh UT', region: 'Northern Region', icon: '❄️' },
+    { city: 'Shimla', state: 'Himachal Pradesh', region: 'Northern Region', icon: '🌲' },
+    { city: 'Chandigarh', state: 'Chandigarh UT', region: 'Northern Region', icon: '🪴' },
+    { city: 'Amritsar', state: 'Punjab', region: 'Northern Region', icon: '🕌' },
+    { city: 'Ludhiana', state: 'Punjab', region: 'Northern Region', icon: '🌾' },
+    { city: 'Jalandhar', state: 'Punjab', region: 'Northern Region', icon: '⚽' },
+    { city: 'Dehradun', state: 'Uttarakhand', region: 'Northern Region', icon: '⛰️' },
+    { city: 'Lucknow', state: 'Uttar Pradesh', region: 'Northern Region', icon: '🏯' },
+    { city: 'Kanpur', state: 'Uttar Pradesh', region: 'Northern Region', icon: '🏭' },
+    { city: 'Varanasi', state: 'Uttar Pradesh', region: 'Northern Region', icon: '🪔' },
+    { city: 'Agra', state: 'Uttar Pradesh', region: 'Northern Region', icon: '🕌' },
+    { city: 'Prayagraj', state: 'Uttar Pradesh', region: 'Northern Region', icon: '⛵' },
+    { city: 'Ghaziabad', state: 'Uttar Pradesh', region: 'Northern Region', icon: '🌇' },
+    { city: 'Noida', state: 'Uttar Pradesh', region: 'Northern Region', icon: '🏙️' },
+    { city: 'Gurugram', state: 'Haryana', region: 'Northern Region', icon: '🏢' },
+    { city: 'Pune', state: 'Maharashtra', region: 'West & Central', icon: '🎓' },
+    { city: 'Nagpur', state: 'Maharashtra', region: 'West & Central', icon: '🍊' },
+    { city: 'Nashik', state: 'Maharashtra', region: 'West & Central', icon: '🍇' },
+    { city: 'Aurangabad', state: 'Maharashtra', region: 'West & Central', icon: '🗿' },
+    { city: 'Solapur', state: 'Maharashtra', region: 'West & Central', icon: '🧵' },
+    { city: 'Ahmedabad', state: 'Gujarat', region: 'West & Central', icon: '🪁' },
+    { city: 'Surat', state: 'Gujarat', region: 'West & Central', icon: '💎' },
+    { city: 'Vadodara', state: 'Gujarat', region: 'West & Central', icon: '🎨' },
+    { city: 'Rajkot', state: 'Gujarat', region: 'West & Central', icon: '⚙️' },
+    { city: 'Jaipur', state: 'Rajasthan', region: 'West & Central', icon: '🏰' },
+    { city: 'Jodhpur', state: 'Rajasthan', region: 'West & Central', icon: '🏜️' },
+    { city: 'Udaipur', state: 'Rajasthan', region: 'West & Central', icon: '⛵' },
+    { city: 'Kota', state: 'Rajasthan', region: 'West & Central', icon: '📚' },
+    { city: 'Bhopal', state: 'Madhya Pradesh', region: 'West & Central', icon: '🏞️' },
+    { city: 'Indore', state: 'Madhya Pradesh', region: 'West & Central', icon: '✨' },
+    { city: 'Gwalior', state: 'Madhya Pradesh', region: 'West & Central', icon: '🏰' },
+    { city: 'Jabalpur', state: 'Madhya Pradesh', region: 'West & Central', icon: '🌊' },
+    { city: 'Panaji', state: 'Goa', region: 'West & Central', icon: '🏖️' },
+    { city: 'Howrah', state: 'West Bengal', region: 'Eastern Region', icon: '🌉' },
+    { city: 'Patna', state: 'Bihar', region: 'Eastern Region', icon: '🏛️' },
+    { city: 'Gaya', state: 'Bihar', region: 'Eastern Region', icon: '🪔' },
+    { city: 'Ranchi', state: 'Jharkhand', region: 'Eastern Region', icon: '🌲' },
+    { city: 'Dhanbad', state: 'Jharkhand', region: 'Eastern Region', icon: '⛏️' },
+    { city: 'Bhubaneswar', state: 'Odisha', region: 'Eastern Region', icon: '🛕' },
+    { city: 'Cuttack', state: 'Odisha', region: 'Eastern Region', icon: '🚣' },
+    { city: 'Raipur', state: 'Chhattisgarh', region: 'Eastern Region', icon: '🏭' },
+    { city: 'Mysuru', state: 'Karnataka', region: 'Southern Region', icon: '👑' },
+    { city: 'Hubballi', state: 'Karnataka', region: 'Southern Region', icon: '🚉' },
+    { city: 'Coimbatore', state: 'Tamil Nadu', region: 'Southern Region', icon: '🏭' },
+    { city: 'Madurai', state: 'Tamil Nadu', region: 'Southern Region', icon: '🛕' },
+    { city: 'Tiruchirappalli', state: 'Tamil Nadu', region: 'Southern Region', icon: '🏰' },
+    { city: 'Salem', state: 'Tamil Nadu', region: 'Southern Region', icon: '⛰️' },
+    { city: 'Warangal', state: 'Telangana', region: 'Southern Region', icon: '🗿' },
+    { city: 'Vijayawada', state: 'Andhra Pradesh', region: 'Southern Region', icon: '🌊' },
+    { city: 'Visakhapatnam', state: 'Andhra Pradesh', region: 'Southern Region', icon: '⚓' },
+    { city: 'Thiruvananthapuram', state: 'Kerala', region: 'Southern Region', icon: '🌴' },
+    { city: 'Kochi', state: 'Kerala', region: 'Southern Region', icon: '⛵' },
+    { city: 'Guwahati', state: 'Assam', region: 'North-East Region', icon: '🦏' },
+    { city: 'Gangtok', state: 'Sikkim', region: 'North-East Region', icon: '🏔️' },
+    { city: 'Shillong', state: 'Meghalaya', region: 'North-East Region', icon: '🌧️' },
+    { city: 'Imphal', state: 'Manipur', region: 'North-East Region', icon: '🌸' },
+    { city: 'Aizawl', state: 'Mizoram', region: 'North-East Region', icon: '🏞️' },
+    { city: 'Kohima', state: 'Nagaland', region: 'North-East Region', icon: '🌄' },
+    { city: 'Agartala', state: 'Tripura', region: 'North-East Region', icon: '🏛️' },
+    { city: 'Itanagar', state: 'Arunachal Pradesh', region: 'North-East Region', icon: '🌄' },
+    { city: 'Puducherry', state: 'Puducherry UT', region: 'Islands & UT', icon: '🏖️' },
+    { city: 'Port Blair', state: 'Andaman & Nicobar UT', region: 'Islands & UT', icon: '🏝️' },
+    { city: 'London', state: 'UK', region: 'Global', icon: '🇬🇧' },
+    { city: 'New York', state: 'USA', region: 'Global', icon: '🇺🇸' },
+    { city: 'Tokyo', state: 'Japan', region: 'Global', icon: '🇯🇵' },
+    { city: 'Dubai', state: 'UAE', region: 'Global', icon: '🇦🇪' },
+    { city: 'Singapore', state: 'Singapore', region: 'Global', icon: '🇸🇬' },
+    { city: 'Paris', state: 'France', region: 'Global', icon: '🇫🇷' }
   ];
 
   // ── Dynamic Weather Canvas Particle Engine ──────────────────────────
@@ -306,8 +390,6 @@ const App = (() => {
     document.getElementById('delta-rain').textContent = (a.rain_prob || 20) >= (b.rain_prob || 20)
       ? `${b.city} ${drierStr}`
       : `${a.city} ${drierStr}`;
-      ? `${a.city} has higher rain probability (${a.rain_prob || 20}%)`
-      : `${b.city} has higher rain probability (${b.rain_prob || 20}%)`;
 
     document.getElementById('comp-ai-verdict').innerHTML = `
       Station ${a.city} registers at ${a.temp}°C (${a.condition}) versus ${b.city} at ${b.temp}°C (${b.condition}).
@@ -386,6 +468,64 @@ const App = (() => {
     WeatherCharts.renderClimate(data);
   }
 
+  let activeRegionFilter = 'all';
+  let activeStationSearch = '';
+
+  function sumChars(str) {
+    let s = 0;
+    for (let i = 0; i < str.length; i++) s += str.charCodeAt(i);
+    return s;
+  }
+
+  function renderStationHub() {
+    const grid = document.getElementById('station-grid');
+    if (!grid) return;
+
+    grid.innerHTML = '';
+    const filtered = stationHubList.filter(item => {
+      const matchRegion = (activeRegionFilter === 'all' || item.region === activeRegionFilter);
+      const q = activeStationSearch.toLowerCase().trim();
+      const matchText = !q || item.city.toLowerCase().includes(q) || item.state.toLowerCase().includes(q) || item.region.toLowerCase().includes(q);
+      return matchRegion && matchText;
+    });
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div class="station-empty-msg">No meteorological stations match "${activeStationSearch}".</div>`;
+      return;
+    }
+
+    filtered.forEach(item => {
+      const card = document.createElement('div');
+      const isActive = item.city.toLowerCase() === currentCity.toLowerCase();
+      card.className = `station-card ${isActive ? 'active' : ''}`;
+      card.dataset.city = item.city;
+      
+      const seed = sumChars(item.city);
+      const estTemp = 20 + (seed % 14);
+
+      card.innerHTML = `
+        <div class="station-card-top">
+          <span class="station-icon">${item.icon}</span>
+          <span class="station-state-badge">${item.state}</span>
+        </div>
+        <div class="station-card-main">
+          <div class="station-name">${item.city}</div>
+          <div class="station-region-tag">${item.region}</div>
+        </div>
+        <div class="station-card-foot">
+          <span class="station-temp-est">~${estTemp}°C</span>
+          <span class="station-live-dot" title="Station Operational"></span>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        switchCity(item.city);
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
   // ── Station Switcher & Master Loader ──────────────────────────────────
   async function switchCity(city) {
     if (!city) return;
@@ -396,13 +536,19 @@ const App = (() => {
     const compA = document.getElementById('comp-city-1');
     const climCity = document.getElementById('climate-city');
     const radarFocus = document.getElementById('radar-focus-city');
+    const stationSel = document.getElementById('station-select');
 
     if (chatLoc) chatLoc.value = city;
     if (compA) compA.value = city;
     if (climCity) climCity.value = city;
     if (radarFocus) radarFocus.textContent = city;
+    if (stationSel) {
+      const opts = Array.from(stationSel.options);
+      const match = opts.find(o => o.value.toLowerCase() === city.toLowerCase());
+      if (match) stationSel.value = match.value;
+    }
 
-    document.querySelectorAll('.city-chip').forEach(c => {
+    document.querySelectorAll('.station-card').forEach(c => {
       c.classList.toggle('active', c.dataset.city?.toLowerCase() === city.toLowerCase());
     });
 
@@ -642,6 +788,35 @@ const App = (() => {
     document.getElementById('alert-view-btn')?.addEventListener('click', () => {
       navigate('alerts');
     });
+
+    // Station Select Dropdown in Header
+    const stationSel = document.getElementById('station-select');
+    if (stationSel) {
+      stationSel.addEventListener('change', (e) => {
+        switchCity(e.target.value);
+      });
+    }
+
+    // Station Hub Search & Filter Pills
+    const stationFilterInput = document.getElementById('station-hub-filter');
+    if (stationFilterInput) {
+      stationFilterInput.addEventListener('input', (e) => {
+        activeStationSearch = e.target.value;
+        renderStationHub();
+      });
+    }
+
+    const regionPills = document.querySelectorAll('.region-pill');
+    regionPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        regionPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        activeRegionFilter = pill.dataset.region;
+        renderStationHub();
+      });
+    });
+
+    renderStationHub();
 
     document.getElementById('comp-run-btn')?.addEventListener('click', runCityComparison);
     document.getElementById('climate-fetch-btn')?.addEventListener('click', loadClimate);

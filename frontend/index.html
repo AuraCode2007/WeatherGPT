@@ -19,7 +19,7 @@
   <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=3.0" />
+  <link rel="stylesheet" href="css/styles.css?v=6.0" />
 </head>
 <body>
 
@@ -90,6 +90,100 @@
           <button class="unit-btn" id="unit-f" data-unit="F" title="Fahrenheit">°F</button>
         </div>
 
+        <div class="header-lang-wrap" title="Select Meteorological Station">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+          <select id="station-select" class="header-lang-select station-select" aria-label="Select Station">
+            <optgroup label="📍 Top Hubs">
+              <option value="Mumbai" selected>Mumbai (MH)</option>
+              <option value="Delhi">Delhi (NCR)</option>
+              <option value="Bengaluru">Bengaluru (KA)</option>
+              <option value="Chennai">Chennai (TN)</option>
+              <option value="Kolkata">Kolkata (WB)</option>
+              <option value="Hyderabad">Hyderabad (TS)</option>
+            </optgroup>
+            <optgroup label="🏔️ Northern Region">
+              <option value="Srinagar">Srinagar (J&K)</option>
+              <option value="Leh">Leh (Ladakh)</option>
+              <option value="Shimla">Shimla (HP)</option>
+              <option value="Chandigarh">Chandigarh (UT)</option>
+              <option value="Amritsar">Amritsar (PB)</option>
+              <option value="Ludhiana">Ludhiana (PB)</option>
+              <option value="Dehradun">Dehradun (UK)</option>
+              <option value="Lucknow">Lucknow (UP)</option>
+              <option value="Kanpur">Kanpur (UP)</option>
+              <option value="Varanasi">Varanasi (UP)</option>
+              <option value="Agra">Agra (UP)</option>
+              <option value="Prayagraj">Prayagraj (UP)</option>
+              <option value="Ghaziabad">Ghaziabad (UP)</option>
+              <option value="Noida">Noida (UP)</option>
+              <option value="Gurugram">Gurugram (HR)</option>
+            </optgroup>
+            <optgroup label="🌴 Western & Central">
+              <option value="Pune">Pune (MH)</option>
+              <option value="Nagpur">Nagpur (MH)</option>
+              <option value="Nashik">Nashik (MH)</option>
+              <option value="Chhatrapati Sambhajinagar">Aurangabad (MH)</option>
+              <option value="Solapur">Solapur (MH)</option>
+              <option value="Ahmedabad">Ahmedabad (GJ)</option>
+              <option value="Surat">Surat (GJ)</option>
+              <option value="Vadodara">Vadodara (GJ)</option>
+              <option value="Rajkot">Rajkot (GJ)</option>
+              <option value="Jaipur">Jaipur (RJ)</option>
+              <option value="Jodhpur">Jodhpur (RJ)</option>
+              <option value="Udaipur">Udaipur (RJ)</option>
+              <option value="Kota">Kota (RJ)</option>
+              <option value="Bhopal">Bhopal (MP)</option>
+              <option value="Indore">Indore (MP)</option>
+              <option value="Gwalior">Gwalior (MP)</option>
+              <option value="Jabalpur">Jabalpur (MP)</option>
+              <option value="Panaji">Panaji (Goa)</option>
+            </optgroup>
+            <optgroup label="🌊 Eastern Region">
+              <option value="Howrah">Howrah (WB)</option>
+              <option value="Patna">Patna (BR)</option>
+              <option value="Gaya">Gaya (BR)</option>
+              <option value="Ranchi">Ranchi (JH)</option>
+              <option value="Dhanbad">Dhanbad (JH)</option>
+              <option value="Bhubaneswar">Bhubaneswar (OD)</option>
+              <option value="Cuttack">Cuttack (OD)</option>
+              <option value="Raipur">Raipur (CG)</option>
+            </optgroup>
+            <optgroup label="⛰️ Southern Region">
+              <option value="Mysuru">Mysuru (KA)</option>
+              <option value="Hubballi">Hubballi (KA)</option>
+              <option value="Coimbatore">Coimbatore (TN)</option>
+              <option value="Madurai">Madurai (TN)</option>
+              <option value="Tiruchirappalli">Tiruchirappalli (TN)</option>
+              <option value="Salem">Salem (TN)</option>
+              <option value="Warangal">Warangal (TS)</option>
+              <option value="Vijayawada">Vijayawada (AP)</option>
+              <option value="Visakhapatnam">Visakhapatnam (AP)</option>
+              <option value="Thiruvananthapuram">Thiruvananthapuram (KL)</option>
+              <option value="Kochi">Kochi (KL)</option>
+            </optgroup>
+            <optgroup label="🌲 North-East & UTs">
+              <option value="Guwahati">Guwahati (AS)</option>
+              <option value="Gangtok">Gangtok (SK)</option>
+              <option value="Shillong">Shillong (ML)</option>
+              <option value="Imphal">Imphal (MN)</option>
+              <option value="Aizawl">Aizawl (MZ)</option>
+              <option value="Kohima">Kohima (NL)</option>
+              <option value="Agartala">Agartala (TR)</option>
+              <option value="Itanagar">Itanagar (AR)</option>
+              <option value="Puducherry">Puducherry (UT)</option>
+              <option value="Port Blair">Port Blair (A&N)</option>
+            </optgroup>
+            <optgroup label="🌐 Global Stations">
+              <option value="London">London (UK)</option>
+              <option value="New York">New York (US)</option>
+              <option value="Tokyo">Tokyo (JP)</option>
+              <option value="Dubai">Dubai (AE)</option>
+              <option value="Singapore">Singapore (SG)</option>
+              <option value="Paris">Paris (FR)</option>
+            </optgroup>
+          </select>
+        </div>
+
         <div class="header-lang-wrap" title="Select Interface Language">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
           <select id="header-lang-select" class="header-lang-select" aria-label="Select Language">
@@ -133,24 +227,6 @@
         </div>
       </div>
 
-    </div>
-
-    <!-- Quick station chips bar -->
-    <div class="quick-cities-bar" id="quick-cities-bar">
-      <div class="city-chips" id="quick-city-chips">
-        <button class="city-chip active" data-city="Mumbai">Mumbai</button>
-        <button class="city-chip" data-city="Delhi">Delhi</button>
-        <button class="city-chip" data-city="Bangalore">Bengaluru</button>
-        <button class="city-chip" data-city="Chennai">Chennai</button>
-        <button class="city-chip" data-city="Kolkata">Kolkata</button>
-        <button class="city-chip" data-city="Hyderabad">Hyderabad</button>
-        <button class="city-chip" data-city="Shimla">Shimla</button>
-        <button class="city-chip" data-city="Jaipur">Jaipur</button>
-        <button class="city-chip" data-city="Kochi">Kochi</button>
-        <button class="city-chip" data-city="London">London</button>
-        <button class="city-chip" data-city="Tokyo">Tokyo</button>
-        <button class="city-chip" data-city="New York">New York</button>
-      </div>
     </div>
   </header>
 
@@ -485,6 +561,39 @@
           <span class="forecast-update-tag" id="forecast-updated" data-i18n="forecast.updated">SYNCHRONIZED JUST NOW</span>
         </div>
         <div class="forecast-cards-grid" id="forecast-cards"></div>
+      </div>
+
+      <!-- ── ZONE D: INDIAN METEOROLOGICAL STATION HUB (50+ CITIES) ── -->
+      <div class="dash-section-label" data-i18n="sec.station_network">Indian Meteorological Network (50+ Stations)</div>
+      <div class="glass-card station-hub-card" id="station-hub-card">
+        <div class="station-hub-header">
+          <div class="station-hub-title-group">
+            <div class="station-hub-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span data-i18n="hub.badge">50+ ACTIVE STATIONS</span>
+            </div>
+            <h2 class="station-hub-title" data-i18n="hub.title">All India Meteorological Network Explorer</h2>
+            <p class="station-hub-sub" data-i18n="hub.sub">Live telemetry and operational monitoring across 28 States & 8 Union Territories</p>
+          </div>
+          <div class="station-hub-search-wrap">
+            <input type="text" id="station-hub-filter" class="form-input station-hub-filter" placeholder="Filter station or state..." data-i18n-placeholder="hub.search_placeholder" />
+          </div>
+        </div>
+
+        <div class="region-filter-pills" id="region-filter-pills">
+          <button class="region-pill active" data-region="all" data-i18n="hub.reg_all">All Stations (50+)</button>
+          <button class="region-pill" data-region="Northern Region" data-i18n="hub.reg_north">Northern Region</button>
+          <button class="region-pill" data-region="West & Central" data-i18n="hub.reg_west">West & Central</button>
+          <button class="region-pill" data-region="Eastern Region" data-i18n="hub.reg_east">Eastern Region</button>
+          <button class="region-pill" data-region="Southern Region" data-i18n="hub.reg_south">Southern Region</button>
+          <button class="region-pill" data-region="North-East Region" data-i18n="hub.reg_ne">North-East Region</button>
+          <button class="region-pill" data-region="Islands & UT" data-i18n="hub.reg_ut">UT & Islands</button>
+          <button class="region-pill" data-region="Global" data-i18n="hub.reg_global">Global</button>
+        </div>
+
+        <div class="station-grid" id="station-grid">
+          <!-- Dynamically populated by app.js -->
+        </div>
       </div>
 
     </section>

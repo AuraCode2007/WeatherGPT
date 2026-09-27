@@ -1,7 +1,7 @@
 @echo off
 echo.
 echo ============================================================
-echo   WeatherGPT v2.0 — AI Weather Intelligence Platform
+echo   WeatherGPT v2.0 -- AI Weather Intelligence Platform
 echo ============================================================
 echo.
 
@@ -13,9 +13,9 @@ if exist ".venv\Scripts\activate.bat" (
     echo [INFO] No .venv found, using system Python.
 )
 
-:: Install / update dependencies
+:: Install / update dependencies (quiet mode)
 echo [1/3] Checking dependencies...
-pip install -r requirements.txt -q
+pip install -r requirements.txt -q --no-warn-script-location 2>nul
 
 :: Verify API keys are not placeholders
 findstr /C:"your_" .env >nul 2>&1
@@ -29,16 +29,22 @@ if %errorlevel%==0 (
     pause
 )
 
-:: Start the unified server (FastAPI serves both API + frontend)
+:: Start the unified server
+:: --reload-dir flags restrict file watching to ONLY backend/ and frontend/
+:: This prevents the server from restarting when .venv packages change.
 echo [2/3] Starting WeatherGPT server...
 echo.
 echo ============================================================
-echo   App      → http://localhost:8000
-echo   API Docs → http://localhost:8000/docs
-echo   Health   → http://localhost:8000/health
+echo   App      ^>  http://localhost:8000
+echo   API Docs ^>  http://localhost:8000/docs
+echo   Health   ^>  http://localhost:8000/health
 echo ============================================================
 echo.
 echo Press Ctrl+C to stop.
 echo.
 
-python -m uvicorn backend.main:app --reload --port 8000 --host 0.0.0.0
+python -m uvicorn backend.main:app --reload ^
+    --reload-dir backend ^
+    --reload-dir frontend ^
+    --port 8000 ^
+    --host 0.0.0.0

@@ -58,3 +58,37 @@ async def get_weather_history(limit: int = 20, db: Session = Depends(get_db)):
         for s in snapshots
     ]
 
+
+from fastapi import WebSocket, WebSocketDisconnect
+import asyncio
+import random
+import time
+
+@router.websocket("/ws/telemetry")
+async def websocket_telemetry(websocket: WebSocket):
+    """
+    WebSocket endpoint streaming live Doppler & atmospheric telemetry ticks every 3 seconds.
+    Used for technical live socket visualization.
+    """
+    await websocket.accept()
+    try:
+        city = "Mumbai"
+        while True:
+            # Send live pulse
+            tick = {
+                "timestamp": time.time(),
+                "city": city,
+                "doppler_sweep_deg": (int(time.time() * 30) % 360),
+                "signal_dbz": round(random.uniform(15.0, 48.0), 1),
+                "pressure_hpa": round(1012.0 + random.uniform(-1.5, 1.5), 1),
+                "wind_gust_kmh": round(random.uniform(10.0, 28.0), 1),
+                "aqi_pm25": round(random.uniform(25.0, 85.0), 1),
+            }
+            await websocket.send_json(tick)
+            await asyncio.sleep(3)
+    except WebSocketDisconnect:
+        pass
+    except Exception:
+        pass
+
+

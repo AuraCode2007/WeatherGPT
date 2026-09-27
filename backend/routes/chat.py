@@ -104,6 +104,7 @@ async def chat_stream(request: ChatRequest):
         raise HTTPException(status_code=502, detail=f"Weather API error: {e}")
 
     def event_generator():
+        full_response = []
         try:
             for chunk in stream_weather_response(
                 question=request.user_question,
@@ -112,10 +113,27 @@ async def chat_stream(request: ChatRequest):
                 language_code=request.language_code,
                 domain=request.domain,
             ):
+                if chunk:
+                    full_response.append(chunk)
                 yield f"data: {json.dumps({'chunk': chunk})}\n\n"
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
         finally:
+            complete_text = "".join(full_response).strip()
+            if complete_text:
+                try:
+                    from backend.db.init_db import SessionLocal
+                    with SessionLocal() as db_session:
+                        save_chat_log(
+                            db_session,
+                            location=request.location,
+                            question=request.user_question,
+                            response=complete_text,
+                            language_code=request.language_code,
+                            domain=request.domain
+                        )
+                except Exception as db_err:
+                    print(f"[DB] Streaming save chat log error: {db_err}")
             yield f"data: {json.dumps({'done': True, 'location': request.location})}\n\n"
 
     return StreamingResponse(

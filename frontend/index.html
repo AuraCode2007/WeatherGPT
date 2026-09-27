@@ -18,6 +18,9 @@
   <!-- Marked.js for Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
 
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json" />
+
   <!-- Stylesheet -->
   <link rel="stylesheet" href="css/styles.css?v=6.0" />
 </head>
@@ -71,6 +74,11 @@
           <svg class="nav-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
           <span class="nav-label" data-i18n="nav.copilot">Telemetry Copilot</span>
           <span class="nav-badge ai-badge">v2.4</span>
+        </button>
+        <button class="nav-btn" id="nav-sandbox" data-section="sandbox">
+          <svg class="nav-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span class="nav-label" data-i18n="nav.sandbox">AI Twin Sandbox</span>
+          <span class="nav-badge star-badge">STAR</span>
         </button>
         <button class="nav-btn" id="nav-alerts" data-section="alerts">
           <svg class="nav-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -1030,6 +1038,117 @@
       </div>
     </section>
 
+    <!-- ─────────────────────────────────────────────────────
+         SECTION 7: ATMOSPHERIC AI TWIN & IMPACT SANDBOX (STAR FEATURE)
+         ───────────────────────────────────────────────────── -->
+    <section class="section" id="section-sandbox" aria-label="AI Twin Microclimate Sandbox">
+      <div class="sandbox-container">
+
+        <!-- Header Card -->
+        <div class="glass-card sandbox-controls-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+              <h2 style="font-size:1.3rem; font-weight:800; color:var(--text-heading); display:flex; align-items:center; gap:8px;">
+                <span data-i18n="sandbox.title">⚡ Atmospheric AI Twin & Impact Sandbox</span>
+                <span class="nav-badge star-badge">STAR FEATURE</span>
+              </h2>
+              <p style="font-size:0.83rem; color:var(--text-muted); margin-top:4px;" data-i18n="sandbox.sub">
+                Simulate what-if microclimate shifts, storm surges, or heatwaves on top of live station telemetry to calculate real-time multi-sector vulnerability matrices.
+              </p>
+            </div>
+            <button class="action-btn-primary" id="sandbox-run-btn" style="background:linear-gradient(135deg, #0284c7 0%, #3b9eff 100%); padding:10px 20px; border-radius:var(--radius-full); color:#fff; border:none; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(2,132,199,0.4);" data-i18n="sandbox.run_btn">
+              🚀 Run AI Twin Simulation
+            </button>
+          </div>
+
+          <!-- Presets -->
+          <div class="sandbox-presets-wrap">
+            <span style="font-size:0.8rem; font-weight:700; color:var(--text-heading); display:flex; align-items:center; margin-right:4px;" data-i18n="sandbox.presets_label">Quick Disaster Presets:</span>
+            <button class="preset-btn" data-preset="heatwave" data-i18n="sandbox.preset_heatwave">🔥 45°C Heatwave Crisis</button>
+            <button class="preset-btn" data-preset="cloudburst" data-i18n="sandbox.preset_cloudburst">⛈️ 110mm/h Cloudburst Flood</button>
+            <button class="preset-btn" data-preset="cyclone" data-i18n="sandbox.preset_cyclone">🌀 105km/h Cyclone Landfall</button>
+            <button class="preset-btn" data-preset="frost" data-i18n="sandbox.preset_frost">❄️ Severe Frost Spike</button>
+          </div>
+
+          <!-- Interactive Sliders -->
+          <div class="sandbox-sliders-grid">
+            <div class="slider-group">
+              <div class="slider-label-row">
+                <span data-i18n="sandbox.temp_shift">Temperature Shift</span>
+                <span class="slider-val" id="sandbox-temp-val">0°C</span>
+              </div>
+              <input type="range" class="sandbox-slider" id="sandbox-temp-slider" min="-10" max="15" step="0.5" value="0" />
+            </div>
+            <div class="slider-group">
+              <div class="slider-label-row">
+                <span data-i18n="sandbox.hum_shift">Humidity Shift</span>
+                <span class="slider-val" id="sandbox-hum-val">0%</span>
+              </div>
+              <input type="range" class="sandbox-slider" id="sandbox-hum-slider" min="-40" max="40" step="1" value="0" />
+            </div>
+            <div class="slider-group">
+              <div class="slider-label-row">
+                <span data-i18n="sandbox.rain_intensity">Rainfall Intensity</span>
+                <span class="slider-val" id="sandbox-rain-val">0 mm/h</span>
+              </div>
+              <input type="range" class="sandbox-slider" id="sandbox-rain-slider" min="0" max="150" step="5" value="0" />
+            </div>
+            <div class="slider-group">
+              <div class="slider-label-row">
+                <span data-i18n="sandbox.wind_speed">Wind Gust Speed</span>
+                <span class="slider-val" id="sandbox-wind-val">0 km/h</span>
+              </div>
+              <input type="range" class="sandbox-slider" id="sandbox-wind-slider" min="0" max="120" step="5" value="0" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Hazard Level Gauge & Telemetry Strip -->
+        <div class="hazard-gauge-card">
+          <div>
+            <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#94a3b8; font-weight:700;" data-i18n="sandbox.hazard_index_label">Composite Hazard Index</div>
+            <div style="font-size:2.2rem; font-weight:900; font-family:var(--font-mono); color:#38bdf8;" id="sandbox-hazard-index">24/100</div>
+          </div>
+          <div>
+            <span class="hazard-badge moderate" id="sandbox-hazard-level" style="padding:6px 16px; border-radius:999px; font-weight:800; font-size:0.85rem;">Nominal</span>
+          </div>
+          <div style="display:flex; gap:20px; text-align:right;">
+            <div>
+              <div style="font-size:0.72rem; color:#94a3b8;" data-i18n="sandbox.sim_temp_label">Simulated Temp</div>
+              <div style="font-family:var(--font-mono); font-weight:700; color:#fff;" id="sandbox-sim-temp">--</div>
+            </div>
+            <div>
+              <div style="font-size:0.72rem; color:#94a3b8;" data-i18n="sandbox.sim_wind_label">Wind Gusts</div>
+              <div style="font-family:var(--font-mono); font-weight:700; color:#fff;" id="sandbox-sim-wind">--</div>
+            </div>
+            <div>
+              <div style="font-size:0.72rem; color:#94a3b8;" data-i18n="sandbox.sim_rain_label">Rain Rate</div>
+              <div style="font-family:var(--font-mono); font-weight:700; color:#fff;" id="sandbox-sim-rain">--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Multi-Sector Impact Grid -->
+        <div>
+          <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-heading); margin-bottom:12px;" data-i18n="sandbox.radar_title">Multi-Domain Sector Impact Radar</h3>
+          <div class="sandbox-impact-grid" id="sandbox-impact-matrix">
+            <div class="sandbox-loading-pulse" data-i18n="sandbox.radar_placeholder">Press "Run AI Twin Simulation" or move sliders to project sector risk scores...</div>
+          </div>
+        </div>
+
+        <!-- Gemini AI Emergency Action Playbook -->
+        <div class="glass-card sandbox-playbook-card">
+          <h3 style="font-size:1.1rem; font-weight:800; color:var(--text-heading); margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+            <span data-i18n="sandbox.playbook_title">🤖 Gemini 3.6 Flash Operations Emergency Playbook</span>
+          </h3>
+          <div id="sandbox-playbook-content" style="font-size:0.9rem; line-height:1.6; color:var(--text-body);" data-i18n="sandbox.playbook_placeholder">
+            Select a disaster scenario preset or adjust atmospheric shift sliders to generate a dynamic emergency response playbook.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </main>
 
   <!-- Toast & Loading Overlay -->
@@ -1043,11 +1162,21 @@
   </div>
 
   <!-- JavaScript Modules -->
-  <script src="js/i18n.js?v=3.0"></script>
-  <script src="js/api.js?v=3.0"></script>
-  <script src="js/charts.js?v=3.0"></script>
-  <script src="js/weather.js?v=3.0"></script>
-  <script src="js/chat.js?v=3.0"></script>
-  <script src="js/app.js?v=3.0"></script>
+  <script src="js/i18n.js?v=5.0"></script>
+  <script src="js/api.js?v=5.0"></script>
+  <script src="js/charts.js?v=5.0"></script>
+  <script src="js/weather.js?v=5.0"></script>
+  <script src="js/chat.js?v=5.0"></script>
+  <script src="js/sandbox.js?v=5.0"></script>
+  <script src="js/app.js?v=5.0"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.warn('[PWA] SW register error:', err));
+      });
+    }
+  </script>
 </body>
 </html>

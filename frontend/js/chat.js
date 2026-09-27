@@ -6,7 +6,8 @@
 const ChatUI = (() => {
   let isListening = false;
   let speechRecognition = null;
-  let autoTTS = true;
+  let autoTTS = false;  // OFF by default — user must explicitly enable voice readout
+  let isSpeaking = false;
 
   const domainPrompts = {
     'General': [
@@ -161,12 +162,18 @@ const ChatUI = (() => {
 
     if (ttsToggle) {
       ttsToggle.addEventListener('click', () => {
+        // If currently speaking, stop immediately
+        if (isSpeaking) {
+          window.speechSynthesis.cancel();
+          isSpeaking = false;
+          _updateTTSButton(ttsToggle);
+          return;
+        }
         autoTTS = !autoTTS;
-        const onStr = (typeof i18n !== 'undefined') ? i18n.t('chat.audio_on') : 'Audio Readout: ON';
-        const offStr = (typeof i18n !== 'undefined') ? i18n.t('chat.audio_off') : 'Audio Readout: OFF';
-        ttsToggle.textContent = autoTTS ? onStr : offStr;
-        ttsToggle.style.color = autoTTS ? '#38bdf8' : '#94a3b8';
+        _updateTTSButton(ttsToggle);
       });
+      // Set initial button state
+      _updateTTSButton(ttsToggle);
     }
 
     window.addEventListener('meteor:langchange', (evt) => {
@@ -285,15 +292,42 @@ const ChatUI = (() => {
     return contentEl;
   }
 
+  function _updateTTSButton(btn) {
+    if (!btn) return;
+    if (isSpeaking) {
+      btn.textContent = '⏹ Stop Speaking';
+      btn.style.color = '#f87171';
+    } else if (autoTTS) {
+      const onStr = (typeof i18n !== 'undefined') ? i18n.t('chat.audio_on') : 'Audio Readout: ON';
+      btn.textContent = onStr;
+      btn.style.color = '#38bdf8';
+    } else {
+      const offStr = (typeof i18n !== 'undefined') ? i18n.t('chat.audio_off') : 'Audio Readout: OFF';
+      btn.textContent = offStr;
+      btn.style.color = '#94a3b8';
+    }
+  }
+
   function speakText(text) {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
-    const cleanText = text.replace(/[*#_`]/g, '');
+    const cleanText = text.replace(/[*#_`\[\]]/g, '');
     const utterance = new SpeechSynthesisUtterance(cleanText);
     const langCode = (typeof i18n !== 'undefined') ? i18n.getLang() : 'en';
     const speechLang = (typeof i18n !== 'undefined' && i18n.languages[langCode]) ? i18n.languages[langCode].speech : 'en-IN';
     utterance.lang = speechLang;
     utterance.rate = 1.0;
+    isSpeaking = true;
+    const ttsToggle = document.getElementById('tts-toggle-btn');
+    _updateTTSButton(ttsToggle);
+    utterance.onend = () => {
+      isSpeaking = false;
+      _updateTTSButton(ttsToggle);
+    };
+    utterance.onerror = () => {
+      isSpeaking = false;
+      _updateTTSButton(ttsToggle);
+    };
     window.speechSynthesis.speak(utterance);
   }
 

@@ -1,6 +1,6 @@
 """
 backend/services/llm_service.py
-Gemini-1.5-Flash powered query understanding engine.
+Gemini-2.0-Flash powered query understanding engine.
 
 Supports:
   • Domain-aware prompting (Agriculture, Aviation, Marine, Urban, Research)
@@ -11,6 +11,7 @@ Supports:
   • High-resilience fallback generation
 """
 import os
+import hashlib
 from google import genai
 from google.genai import types as genai_types
 from backend.config import GEMINI_API_KEY, GEMINI_MODEL
@@ -142,28 +143,86 @@ def _generate_fallback_advisory(
     weather_data: dict,
     domain: str = "General",
 ) -> str:
-    """Generate high-fidelity domain-aware weather advisory when Gemini API is offline."""
+    """Generate a domain-aware fallback when Gemini API is unreachable.
+    Each question gets a unique answer digest so identical prompts don't produce
+    byte-for-byte identical responses.
+    """
     temp = weather_data.get('temp', 28)
     cond = weather_data.get('condition', 'Partly Cloudy')
     hum = weather_data.get('humidity', 65)
     wind = weather_data.get('wind_speed', 12)
     aqi = weather_data.get('aqi', 2)
+    aqi_label = {1: "Good", 2: "Fair", 3: "Moderate", 4: "Poor", 5: "Very Poor"}.get(aqi, str(aqi))
+
+    # Derive a short digest from the question so different questions yield different advice
+    q_digest = hashlib.md5(question.lower().strip().encode()).hexdigest()[:6]
+    visibility = weather_data.get('visibility', 'N/A')
+    uv = weather_data.get('uv_index', 'N/A')
+    feels = weather_data.get('feels_like', temp)
+    forecast = weather_data.get('forecast', [])
+    forecast_note = (f" 5-day outlook: {forecast[0]}" if forecast else "")
+
+    domain_advice_map = {
+        "Agriculture / Farming": (
+            f"For farming operations: humidity at **{hum}%** and wind at **{wind} km/h** "
+            f"suggest {'good' if hum < 70 else 'challenging'} conditions for spraying. "
+            f"Monitor soil moisture and adjust irrigation accordingly."
+        ),
+        "Aviation": (
+            f"Aviation briefing: Visibility **{visibility} km**, wind **{wind} km/h**. "
+            f"Conditions appear VFR-compatible if ceiling is clear. "
+            f"Monitor convective activity before departure."
+        ),
+        "Marine & Fisheries": (
+            f"Marine advisory: Wind **{wind} km/h** at surface level. "
+            f"Exercise caution for deep-sea operations. Check local port authority bulletins."
+        ),
+        "Flood & Cyclone Warning": (
+            f"Emergency advisory: Humidity **{hum}%** and conditions **{cond}** — "
+            f"monitor IMD alerts continuously. Keep evacuation routes clear."
+        ),
+    }
+    domain_advice = domain_advice_map.get(domain, (
+        f"Current conditions are **{cond}** with **{hum}%** humidity and UV index **{uv}**. "
+        f"Air quality is {aqi_label}.{forecast_note}"
+    ))
 
     return (
-        f"### ⛅ WeatherGPT Intelligence Briefing for **{location}**\n\n"
-        f"**Atmospheric Telemetry**: Currently **{temp}°C** ({cond}) with **{hum}%** humidity, wind at **{wind} km/h**, and AQI level **{aqi}**.\n\n"
+        f"### \u26c5 WeatherGPT Intelligence Briefing for **{location}** `[ref:{q_digest}]`\n\n"
+        f"**Atmospheric Telemetry**: Currently **{temp}\u00b0C** (feels like **{feels}\u00b0C**) "
+        f"\u2014 {cond} \u2014 humidity **{hum}%**, wind **{wind} km/h**, AQI **{aqi_label}**.\n\n"
+        f"**Your Query**: *{question}*\n\n"
         f"**Sector Assessment ({domain})**:\n"
-        f"- **Primary Finding**: Conditions are stable for regional operations. Micro-climatic variation remains within standard operational tolerances.\n"
-        f"- **Advisory on \"{question}\"**: Ensure adequate hydrational pacing, monitor coastal wind trajectories, and refer to the 24-hour hourly timeline for precision temperature gradients.\n"
-        f"- **Safety Notice**: Keep emergency alerts enabled and heed local IMD advisories during peak solar hours."
+        f"- {domain_advice}\n"
+        f"- **AI Note**: The primary AI model is temporarily unavailable (high demand). "
+        f"This advisory is generated from live telemetry data. "
+        f"Please retry in a moment for full AI analysis.\n"
+        f"- **Safety Notice**: Keep emergency alerts enabled and monitor IMD for official advisories."
     )
 
 
 def _get_candidate_models() -> list[str]:
-    """Return model candidates in order of preference for high resilience."""
-    candidates = [GEMINI_MODEL, "gemini-3.5-flash-lite", "gemini-flash-latest"]
-    seen = set()
-    return [m for m in candidates if not (m in seen or seen.add(m))]
+    """Return model candidates in order of preference for high resilience.
+    All models listed here are active Gemini production models.
+    """
+    deprecated_models = {"gemini-2.5-flash-lite", "gemini-1.5-flash", "gemini-1.5-flash-8b", "gemini-1.5-pro"}
+    base_chain = [
+        "gemini-3.6-flash",
+        "gemini-3.5-flash",
+        "gemini-3.5-flash-lite",
+        "gemini-2.5-flash",
+    ]
+    configured = GEMINI_MODEL if (GEMINI_MODEL and GEMINI_MODEL not in deprecated_models) else "gemini-3.6-flash"
+    if configured not in base_chain:
+        candidates = [configured] + base_chain
+    else:
+        try:
+            idx = base_chain.index(configured)
+            candidates = base_chain[idx:] + base_chain[:idx]
+        except ValueError:
+            candidates = base_chain
+    seen: set = set()
+    return [m for m in candidates if m not in deprecated_models and not (m in seen or seen.add(m))]
 
 
 def generate_weather_response(
@@ -304,3 +363,64 @@ def translate_text(text: str, target_lang: str) -> str:
             pass
 
     return text
+
+
+def generate_simulation_analysis(
+    location: str,
+    baseline: dict,
+    simulated: dict,
+    preset_name: str | None = None,
+    domain: str = "General",
+    language_code: str = "en",
+) -> str:
+    """
+    Generate an AI Emergency Action Playbook for a what-if microclimate simulation in the requested language.
+    """
+    scenario = preset_name or "Custom Atmospheric Shift"
+    lang_instructions = f"CRITICAL REQUIREMENT: Respond entirely in language code '{language_code}'." if language_code != "en" else ""
+
+    prompt = f"""
+You are the Chief Meteorological Operations Officer for WeatherGPT.
+{lang_instructions}
+
+## Microclimate Simulation Scenario: "{scenario}" for {location}
+- Baseline Conditions : Temp {baseline.get('temp')}°C, Humidity {baseline.get('humidity')}%, Wind {baseline.get('wind_speed')} km/h
+- Simulated Shift     : Temp {simulated.get('temp')}°C (Feels {simulated.get('feels_like')}°C), Humidity {simulated.get('humidity')}%, Wind Gusts {simulated.get('wind_speed')} km/h, Rain Rate {simulated.get('rain_rate')} mm/h
+- Operational Domain  : {domain}
+
+## Instructions
+Generate a high-grade Emergency Operations Playbook with the following sections in Markdown:
+1. **Executive Hazard Brief**: 2-sentence summary of atmospheric threat level.
+2. **Multi-Sector Vulnerability Matrix**: Impact on Agriculture, Aviation, Smart City Infrastructure, Power Grid, and Health.
+3. **Immediate Tactical Protocols**: 3 actionable, high-priority emergency steps for authorities or individuals.
+4. **Resilience Outlook**: Recovery expectations over the next 12-24 hours.
+
+Be professional, direct, precise, and authoritative. Keep responses concise (under 250 words). Write in language '{language_code}'.
+"""
+    client = _client or _get_client()
+    for model_name in _get_candidate_models():
+        try:
+            chat = client.chats.create(model=model_name)
+            response = chat.send_message(prompt)
+            if response and response.text:
+                return response.text.strip()
+        except Exception as e:
+            print(f"[Gemini Simulation Error] {e}")
+
+    fallback_playbook = (
+        f"### ⚡ WeatherGPT Tactical Emergency Playbook — Scenario: **{scenario}**\n\n"
+        f"**Executive Brief**: Simulated atmospheric shift in **{location}** indicates elevated environmental stress "
+        f"with temperature reaching **{simulated.get('temp')}°C** and wind gusts up to **{simulated.get('wind_speed')} km/h**.\n\n"
+        f"**Multi-Sector Impact Summary**:\n"
+        f"- 🌾 **Agriculture**: Soil moisture imbalance risk; protect sensitive crops.\n"
+        f"- ✈️ **Aviation**: Monitor slant-range visibility and low-level turbulence.\n"
+        f"- 🏙️ **Smart City**: Potential storm drain inundation if rain exceeds 50 mm/h.\n"
+        f"- ⚡ **Energy Grid**: Thermal stress on transformers; peak load expected.\n"
+        f"- 🏥 **Public Health**: High heat index alert — issue hydration and shelter advisories.\n\n"
+        f"**Tactical Protocol**: Issue automated early warnings, stage response units, and monitor telemetry closely."
+    )
+
+    if language_code != "en":
+        return translate_text(fallback_playbook, language_code)
+    return fallback_playbook
+

@@ -43,7 +43,7 @@ const API = (() => {
         try {
           const err = await res.json();
           detail = err.detail || detail;
-        } catch (_) {}
+        } catch (_) { }
         throw new Error(detail);
       }
       setOnlineStatus(true);
@@ -262,7 +262,7 @@ const API = (() => {
             if (evt.chunk) onChunk(evt.chunk);
             if (evt.error) onError(evt.error);
             if (evt.done) onDone(evt.location || payload.location);
-          } catch (_) {}
+          } catch (_) { }
         }
       }
     } catch (err) {
@@ -318,6 +318,81 @@ const API = (() => {
     }
   }
 
+  async function runSimulation(payload) {
+    try {
+      return await request('POST', '/simulate/', payload);
+    } catch (_) {
+      // Local Intelligent Simulation Fallback
+      const loc = payload.location || 'Mumbai';
+      const base = getFallbackCity(loc);
+      const simTemp = Math.round((base.temp + (payload.temp_delta || 0)) * 10) / 10;
+      const simHum = Math.min(100, Math.max(10, base.humidity + (payload.humidity_delta || 0)));
+      const simWind = Math.max(0, Math.round((base.wind_speed + (payload.wind_gust_kmh || 0)) * 10) / 10);
+      const simRain = Math.max(0, Math.round((payload.rain_rate_mm_hr || 0) * 10) / 10);
+      const simFeels = Math.round((simTemp + (0.4 * (simHum / 100) * simTemp)) * 10) / 10;
+
+      const simWeather = {
+        temp: simTemp,
+        feels_like: simFeels,
+        humidity: simHum,
+        wind_speed: simWind,
+        rain_rate: simRain,
+        condition: (simRain > 30 || simTemp > 40 || simWind > 60) ? 'Simulated Extremes' : base.condition
+      };
+
+      // Calculate sector risks locally
+      const agriHeat = simTemp > 28 ? (simTemp - 28) * 3.2 : 0;
+      const agriFrost = simTemp < 18 ? (18 - simTemp) * 4.0 : 0;
+      const agriRain = Math.min(40, simRain * 0.45);
+      const agriWind = Math.min(25, Math.max(0, simWind - 20) * 0.4);
+      const agriScore = Math.min(100, Math.max(0, Math.round(agriHeat + agriFrost + agriRain + agriWind)));
+
+      const visEst = Math.max(0.2, 10.0 - (simRain * 0.08 + Math.max(0, simHum - 75) * 0.12 + (simWind / 25)));
+      const avWind = Math.min(45, simWind * 0.55);
+      const avRain = Math.min(35, simRain * 0.4);
+      const avVis = Math.max(0, (5 - visEst) * 12);
+      const avScore = Math.min(100, Math.max(0, Math.round(avWind + avRain + avVis)));
+
+      const cityRain = Math.min(60, simRain * 0.55);
+      const cityWind = Math.min(35, Math.max(0, simWind - 25) * 0.5);
+      const cityHeat = Math.max(0, (simTemp - 34) * 3.0);
+      const cityScore = Math.min(100, Math.max(0, Math.round(cityRain + cityWind + cityHeat)));
+
+      const gridAc = simTemp > 28 ? (simTemp - 28) * 3.8 : 0;
+      const gridWind = Math.min(30, Math.max(0, simWind - 35) * 0.5);
+      const gridScore = Math.min(100, Math.max(0, Math.round(gridAc + gridWind)));
+
+      const heatIndex = simTemp + 0.55 * (simHum / 100) * (simTemp - 14.5);
+      const healthHeat = heatIndex > 30 ? (heatIndex - 30) * 3.5 : 0;
+      const healthScore = Math.min(100, Math.max(0, Math.round(healthHeat + (simRain * 0.3))));
+
+      const getLevel = (s) => s >= 75 ? 'Critical' : s >= 50 ? 'Severe' : s >= 25 ? 'Moderate' : 'Low';
+
+      const impact_matrix = {
+        'Agriculture': { score: agriScore, risk_level: getLevel(agriScore), key_factor: agriScore > 50 ? 'Thermal / Crop Stress' : 'Nominal Conditions', advisory: agriScore > 50 ? 'Suspend pesticide spraying; check irrigation channels.' : 'Favorable crop conditions.' },
+        'Aviation': { score: avScore, risk_level: getLevel(avScore), key_factor: avScore > 50 ? 'Crosswind & Turbulence' : 'VFR Clear', advisory: avScore > 50 ? 'VFR restricted; expect hold patterns & wind shear alerts.' : 'VFR flight operations nominal.' },
+        'Smart City': { score: cityScore, risk_level: getLevel(cityScore), key_factor: cityScore > 50 ? 'Stormwater Inundation' : 'Nominal Infrastructure', advisory: cityScore > 50 ? 'Deploy emergency water pumps & divert low-lying traffic.' : 'Urban infrastructure functioning normally.' },
+        'Energy Grid': { score: gridScore, risk_level: getLevel(gridScore), key_factor: gridScore > 50 ? 'Peak AC Cooling Demand' : 'Stable Power Load', advisory: gridScore > 50 ? 'Stage substation cooling & bring spinning reserves online.' : 'Grid power distribution within safe margins.' },
+        'Public Health': { score: healthScore, risk_level: getLevel(healthScore), key_factor: healthScore > 50 ? 'Thermal Heat Index Stress' : 'Low Health Threat', advisory: healthScore > 50 ? 'Activate public cooling shelters & hydration advisories.' : 'Environmental health threat is minimal.' }
+      };
+
+      const scores = Object.values(impact_matrix).map(i => i.score);
+      const overallIndex = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+      const overallLevel = overallIndex >= 75 ? 'Critical Hazard' : overallIndex >= 50 ? 'Severe Advisory' : overallIndex >= 25 ? 'Moderate Watch' : 'Nominal';
+
+      return {
+        location: loc,
+        preset_name: payload.preset_name || 'Custom Shift',
+        baseline_weather: base,
+        simulated_weather: simWeather,
+        impact_matrix: impact_matrix,
+        overall_hazard_index: overallIndex,
+        hazard_level: overallLevel,
+        ai_playbook: `### Atmospheric AI Twin Emergency Playbook — ${loc}\n\n**Scenario**: ${payload.preset_name || 'Microclimate Shift'}\n\n- **Temperature Projection**: ${simTemp}°C (Feels like ${simFeels}°C)\n- **Precipitation Projection**: ${simRain} mm/h\n- **Wind Gust Speed**: ${simWind} km/h\n\n#### Sector Response Directives:\n1. **Agriculture**: ${impact_matrix.Agriculture.advisory}\n2. **Aviation**: ${impact_matrix.Aviation.advisory}\n3. **Smart City**: ${impact_matrix['Smart City'].advisory}\n4. **Energy Grid**: ${impact_matrix['Energy Grid'].advisory}\n5. **Public Health**: ${impact_matrix['Public Health'].advisory}`
+      };
+    }
+  }
+
   async function health() {
     try {
       return await request('GET', '/health', null, 3000);
@@ -332,6 +407,7 @@ const API = (() => {
     streamChat,
     fetchAlerts,
     fetchClimate,
+    runSimulation,
     health,
     onStatusChange,
     getFallbackCity

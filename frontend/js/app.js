@@ -604,6 +604,8 @@ const App = (() => {
       loadClimate();
     } else if (sectionId === 'alerts') {
       loadAlerts(currentCity);
+    } else if (sectionId === 'sandbox') {
+      if (typeof Sandbox !== 'undefined') Sandbox.triggerSimulation();
     }
   }
 
@@ -832,6 +834,7 @@ const App = (() => {
 
   return {
     switchCity,
-    navigate
+    navigate,
+    getCity: () => currentCity
   };
 })();

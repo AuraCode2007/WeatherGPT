@@ -1,5 +1,6 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # WeatherGPT Requirements
+# Frontend: HTML/JS/CSS METEOR.OPS dashboard served by FastAPI (no Streamlit)
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Backend — FastAPI

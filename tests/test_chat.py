@@ -57,3 +57,22 @@ def test_chat_404_for_unknown_city(mock_get, mock_weather):
 def test_chat_missing_question():
     resp = client.post("/chat/", json={"location": "Delhi"})
     assert resp.status_code == 422   # Pydantic validation error
+
+
+@patch("backend.routes.chat.fetch_weather", return_value=_WEATHER_MOCK)
+@patch("backend.routes.chat.stream_weather_response", return_value=iter(["Sunny ", "and ", "warm."]))
+def test_chat_stream_response(mock_stream, mock_weather):
+    resp = client.post("/chat/stream", json={
+        "user_question": "What is the outlook?",
+        "location": "Delhi",
+        "language_code": "en",
+        "domain": "General",
+    })
+    assert resp.status_code == 200
+    assert "text/event-stream" in resp.headers["content-type"]
+    body = resp.text
+    assert '"chunk": "Sunny "' in body
+    assert '"chunk": "and "' in body
+    assert '"chunk": "warm."' in body
+    assert '"done": true' in body
+
